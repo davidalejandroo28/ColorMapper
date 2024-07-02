@@ -11,7 +11,9 @@
 *.sln.docstates
 Tools/
 x64/
-Libraries/
+
+/Color_Mapper_Program/Color_Mapper/Libraries/*
+!/Color_Mapper_Program/Color_Mapper/Libraries/Libraries.txt
 *.vcxproj
 *.vcxproj.filters
 *.sln
