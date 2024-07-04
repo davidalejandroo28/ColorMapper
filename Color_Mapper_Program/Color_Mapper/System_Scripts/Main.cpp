@@ -1,5 +1,5 @@
 ////CONFINGURATIONS////
-//To configure, go to project->properties->preprocessor->preprocessor definitions->set 1 or 0's accordingly
+//To configure for visual studio, go to project->properties->preprocessor->preprocessor definitions->set 1 or 0's accordingly
 
 #if TESTMODE 1
     
@@ -20,24 +20,13 @@
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../Libraries/Image_Loader/stb_image.h"
-
 #include "Shader.h"
 #include "Event.h"
 #include "System_Manager.h"
 
 #include "../Playground.h"
-#include "../Assets/Game_Scripts/TestGameScript.h"
 
 using namespace std;
-
-static float deltaTime;
-
-void CalculateDeltaTime()
-{
-
-}
 
 void DeleteScripts(vector<Observer<>*> scripts)
 {
@@ -50,7 +39,7 @@ void DeleteScripts(vector<Observer<>*> scripts)
 int main()
 {
     sf::Context context;
-
+    
     //Initialize glad
     if (!gladLoadGLLoader((GLADloadproc)(context.getFunction)))
     {
@@ -63,7 +52,7 @@ int main()
     SystemManager* sysManager = SystemManager::GetInstance();
     sysManager->PrintSystemInfomation();
 
-    vector<Observer<>*> scripts = { new TestGameScript, new Playground };
+    vector<Observer<>*> scripts = { new Playground };
 
     // create the window
     sf::ContextSettings windowSettings(24);

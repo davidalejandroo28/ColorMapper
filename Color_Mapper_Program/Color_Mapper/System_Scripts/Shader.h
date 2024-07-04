@@ -15,5 +15,5 @@ public:
 	unsigned int GetId() { return this->_id; }
 
 private:
-	unsigned int _id;
+	unsigned int _id = -1;
 };

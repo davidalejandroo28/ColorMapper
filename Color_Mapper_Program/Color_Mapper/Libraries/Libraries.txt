@@ -2,7 +2,6 @@ Libraries that this project depends upon:
     Catch: https://github.com/catchorg/Catch2 
     glad: https://glad.dav1d.de/ (API: gl of version >= 3.3, Profile: core, Generate a loader, )
     glm: https://github.com/g-truc/glm 
-    stb_image: https://github.com/nothings/stb/blob/master/stb_image.h 
     SFML: https://www.sfml-dev.org/download/sfml/2.6.1/ (of version 2.6.1 or higher)
 
 Visual Studio libraries:
