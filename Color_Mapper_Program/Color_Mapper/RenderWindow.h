@@ -9,9 +9,10 @@
 #include "./System_Scripts/Runtime_Script.h"
 
 using namespace std;
-class Playground: public RuntimeScript
+class RenderWindow: public RuntimeScript
 {
 public:
+    //This checks for any errors on the GPU and then converts the error code
     void CheckErrors()
     {
         GLenum errorCode;
@@ -73,22 +74,20 @@ public:
 
     int CreateVertexArray()
     {
-        unsigned int tri2VertexArray;
-        glGenVertexArrays(1, &tri2VertexArray);
-        glBindVertexArray(tri2VertexArray);
+        unsigned int vertexArray;
+        glGenVertexArrays(1, &vertexArray);
+        glBindVertexArray(vertexArray);
 
         //pos attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
         //color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        //texture attribute
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
         glEnableVertexAttribArray(2);
 
-        return tri2VertexArray;
+        return vertexArray;
     }
 
     void InitializeRender()
@@ -98,38 +97,31 @@ public:
         CreateShaders();
 
         float vertexs[] = {
-            //positions          //colors          //Texture cordinates
+            //positions          //colors          
             //Top
-            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, //BL
-            0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, 1.0f, 0.0f, //BR
-            -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 1.0f, 0.0f, 1.0f, //TL
-            0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 1.0f, 1.0f, 1.0f, //TR
+            -0.5f, -0.5f, 0.0f, 1.0f, 0.2f, 1.0f, //BL
+            0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //BR
+            -0.5f, 0.5f, 0.0f,  0.1f, 1.0f, 1.0f, //TL
+            0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 0.1f, //TR
         };
 
+        //This makes shapes out of the vertexs provided
         unsigned int indices[] = {
-            //Box
             0, 1, 2,
             3, 2, 1,
-
-          
-
         };
 
-        unsigned int tri2VertexBuffer = CreateBuffer(vertexs, GL_ARRAY_BUFFER);
+        unsigned int vertexBuffer = CreateBuffer(vertexs, GL_ARRAY_BUFFER);
         unsigned int indiceElementBuffer = CreateBuffer(indices, GL_ELEMENT_ARRAY_BUFFER);
 
         int vertexArray = CreateVertexArray();
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceElementBuffer);     
     }
 
-    float time = 0;
     void Render()
     {
-        int timelocation = glGetUniformLocation(shaderId, "time");
-        glUniform1f(timelocation, 10.0f);
-
+        CheckErrors();
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
     }
 
 	void Start()

@@ -24,7 +24,7 @@
 #include "Event.h"
 #include "System_Manager.h"
 
-#include "../Playground.h"
+#include "../RenderWindow.h"
 
 using namespace std;
 
@@ -57,7 +57,7 @@ int main()
     SystemManager* sysManager = SystemManager::GetInstance();
     sysManager->PrintSystemInfomation();
 
-    vector<Observer<>*> scripts = { new Playground };
+    vector<Observer<>*> scripts = { new RenderWindow };
 
     // create the window
     sf::ContextSettings windowSettings(24);

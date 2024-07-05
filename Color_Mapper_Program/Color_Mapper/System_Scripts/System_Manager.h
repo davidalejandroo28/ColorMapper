@@ -32,9 +32,9 @@ public:
 	//Functions
 	void PrintSystemInfomation();
 
-	//Events
-	static Event<> systemScripts;
-	static Event<> gameScripts;
+	//Event Functions
+	void AddGameScript(Observer<>* gameRuntimeScript) { this->gameScripts.AddObserver(gameRuntimeScript); }
+	void AddSystemScript(Observer<>* sysRuntimeScript) { this->systemScripts.AddObserver(sysRuntimeScript); }
 
 	void UpdateSystemScripts() { this->systemScripts.Trigger(); }
 	void UpdateGameScripts() { this->gameScripts.Trigger(); }
@@ -49,4 +49,8 @@ private:
 	
 
 	static SystemManager* _instance;
+
+	//Event Variables
+	static Event<> systemScripts;
+	static Event<> gameScripts;
 };

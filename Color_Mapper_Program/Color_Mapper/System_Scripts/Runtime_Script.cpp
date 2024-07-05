@@ -6,7 +6,7 @@
 RuntimeScript::RuntimeScript()
 {
 	SystemManager* sys = SystemManager::GetInstance();
-	sys->gameScripts.AddObserver(this);
+	sys->AddGameScript(this);
 }
 
 void RuntimeScript::EventTrigger()
