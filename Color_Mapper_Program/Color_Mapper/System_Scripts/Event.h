@@ -16,6 +16,8 @@ template<class... types>
 class Event
 {
 public:
+	// This calls the EventTrigger function in the Observer class. 
+	// Via polymorphism, any class can overide EventTrigger and have it's function get called
 	void Trigger(types... params)
 	{
 		for (int x = 0; x < this->observers.size(); x++)

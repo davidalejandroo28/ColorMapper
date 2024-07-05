@@ -36,6 +36,11 @@ void DeleteScripts(vector<Observer<>*> scripts)
     }
 }
 
+void RetrieveUserSettings()
+{
+
+}
+
 int main()
 {
     sf::Context context;
@@ -97,8 +102,6 @@ int main()
     // release resources...
     DeleteScripts(scripts);
     sysManager->DeleteInstance();
-
-    //TODO destroy scripts and get valgrind to tell me about memory leaks
 
     return 0;
 }
