@@ -99,16 +99,19 @@ public:
         float vertexs[] = {
             //positions          //colors          
             //Top
-            -0.5f, -0.5f, 0.0f, 1.0f, 0.2f, 1.0f, //BL
+            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, //BL
             0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //BR
-            -0.5f, 0.5f, 0.0f,  0.1f, 1.0f, 1.0f, //TL
-            0.5f, 0.5f, 0.0f,   1.0f, 1.0f, 0.1f, //TR
+            -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //TL
+
+            0.5f, -0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //BR
+            -0.5f, 0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //TL
+            0.5f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, //TR
         };
 
         //This makes shapes out of the vertexs provided
         unsigned int indices[] = {
             0, 1, 2,
-            3, 2, 1,
+            5, 2, 1,
         };
 
         unsigned int vertexBuffer = CreateBuffer(vertexs, GL_ARRAY_BUFFER);
