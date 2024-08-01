@@ -133,7 +133,7 @@ struct MeshData
 
 int ReturnMidIndex(int lowIndex, int highIndex)
 {
-    return (highIndex - lowIndex) / 2 + lowIndex;
+    return (highIndex + lowIndex) / 2;
 }
 
 //returns the index of the median in the array
@@ -233,10 +233,46 @@ void printMesh(MeshData& mesh)
                " Tri Index: " << vertex->triangleIndex << endl;
         index++;
     }
-    cout << "-------------------------" << endl;
+    cout << "-------------------------" << endl << endl;
 
     cout << "----Printing Triangles----" << endl;
-    cout << "TODO" << endl;
+    index = 0;
+    for (auto triangle = mesh.triangles.begin(); triangle != mesh.triangles.end(); triangle++)
+    {
+        cout << "Triangle: " << index <<
+            " Vertices: " << triangle->vertices[0] << " " << triangle->vertices[1] << " " << triangle->vertices[2] << endl;
+        index++;
+    }
+    cout << "-------------------------" << endl << endl;
+
+    cout << "TODO, Triangle neighbors" << endl;
+}
+
+//using Delaunay Trianglization (A Divide-and-conquer Delaunay Triangulation by sang-wook yang, young choi, and chang-kyo jung)
+void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZE - 1, int depth = 0)
+{
+    if (highVertIndex - lowVertIndex == 2)
+    {
+        //connect the vertices into a triangle
+        Triangle triangle;
+        triangle.vertices = { lowVertIndex, lowVertIndex + 1, lowVertIndex + 2 };
+        mesh.triangles.push_back(triangle);
+
+        //TODO, add triangle indexs when needed
+        return;
+    }
+    else if (highVertIndex - lowVertIndex < 2)
+    {
+        //leave the points be for the merge algorithm
+        return;
+    }
+    
+    int midIndex = ReturnMidIndex(lowVertIndex, highVertIndex);
+
+    //merge stuff
+    //let's do recursive call on merge mesh and get something on the screen before I do the merge function
+    MergeMesh(mesh, lowVertIndex, midIndex);
+    MergeMesh(mesh, midIndex + 1, highVertIndex);
 }
 
 MeshData GenerateRandomMesh()
@@ -249,22 +285,26 @@ MeshData GenerateRandomMesh()
     std::srand(1);
 
     MeshData mesh;
+    float randomVal = 0;
 
     //place each vertex randomly on a 2d plane
     for (Vertex& vertex : mesh.vertices)
     {
-        float randomVal = (float) rand() / RAND_MAX;
+        randomVal = (float) rand() / RAND_MAX;
 
         //implementation of equation x or y = (distance of allowed bounds * random Value) + (left bound)
         //Proof: https://www.desmos.com/calculator/oat3knijz3
         vertex.cordinates[0] = ((xCordBounds[1] - xCordBounds[0]) * randomVal) + xCordBounds[0];
+
+        randomVal = (float)rand() / RAND_MAX;
         vertex.cordinates[1] = ((yCordBounds[1] - yCordBounds[0]) * randomVal) + yCordBounds[0];
     }
 
     //Sort the mesh
     SortVertexs(mesh.vertices);
 
-
+    //merge the mesh together
+    MergeMesh(mesh);
 
     return mesh;
 }
@@ -280,6 +320,7 @@ int main()
     //colorize mesh
 
     //somehow give it to the window to render
+
     
     //Render the window
     return ShowWindow();
