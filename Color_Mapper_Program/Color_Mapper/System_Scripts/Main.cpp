@@ -12,10 +12,13 @@
 
 #pragma once
 
+#define DATASIZE 1000
+
 #include <iostream>
 #include <vector>
 #include <array>
 #include <cstdlib>
+#include <algorithm>
 
 #include <glad/glad.h>
 #include <SFML/OpenGL.hpp>
@@ -123,9 +126,41 @@ struct Triangle
 
 struct MeshData
 {
-    array<Vertex, 100> vertices;
+    array<Vertex, DATASIZE> vertices;
     vector<Triangle> triangles;
 };
+
+//This sorts the vertex list into a 1D array kd-tree structure
+//This uses quick sort
+void SortVertexs(array<Vertex, DATASIZE>& vertices, int depth = 0, int lowIndex = 0, int highIndex = DATASIZE)
+{
+    //Return case to stop sorting
+    if (lowIndex >= highIndex)
+    {
+        return;
+    }
+
+    //int midIndex = (lowIndex + highIndex) / 2;
+    int axisMedian = 0;
+    bool useYAxis = depth % 2;
+
+    //find pivot to place in the center (the pivot is the middle most axis point)
+    if (useYAxis)
+    {
+        for (int y = lowIndex; y < highIndex; y++)
+        {
+            //find middle point (it's m in:https://www.desmos.com/calculator/sbviponlyb)
+            auto middleIter = vertices.begin() + ((highIndex - lowIndex) / 2 + lowIndex);
+            nth_element(vertices.begin() + lowIndex, middleIter, vertices.begin() + highIndex); // find median and place it in the middle
+        }
+    }
+    else
+    {
+       
+    }
+    
+
+}
 
 MeshData GenerateRandomMesh()
 {
@@ -148,6 +183,12 @@ MeshData GenerateRandomMesh()
         vertex.cordinates[0] = ((xCordBounds[1] - xCordBounds[0]) * randomVal) + xCordBounds[0];
         vertex.cordinates[1] = ((yCordBounds[1] - yCordBounds[0]) * randomVal) + yCordBounds[0];
     }
+
+
+
+
+
+    return mesh;
 }
 
 int main()
@@ -156,6 +197,12 @@ int main()
 
     //generate a random mesh to colorize
     MeshData mesh = GenerateRandomMesh();
+
+    /*array<int, 11> test = { 1, 2, 3, 4, 5, 6, 12, 8, 9, 10, 11 };
+
+    auto middleIter = test.begin() + (test.size() / 2);
+    nth_element(test.begin(), middleIter, test.end());
+    cout << "The median is: " << test[test.size() / 2] << endl;*/
 
     //colorize mesh
 
