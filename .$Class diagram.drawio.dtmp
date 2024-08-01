@@ -255,7 +255,7 @@
         <mxCell id="DC3Ii83JLg7wSaAl1C-k-6" value="Generate Data Set" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="338" y="230" width="200" height="200" as="geometry" />
         </mxCell>
-        <mxCell id="DC3Ii83JLg7wSaAl1C-k-7" value="Data Columns" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="DC3Ii83JLg7wSaAl1C-k-6" vertex="1">
+        <mxCell id="DC3Ii83JLg7wSaAl1C-k-7" value="Data struct:" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="DC3Ii83JLg7wSaAl1C-k-6" vertex="1">
           <mxGeometry y="24" width="140" height="120" as="geometry" />
         </mxCell>
         <mxCell id="DC3Ii83JLg7wSaAl1C-k-8" value="Color: (red, green, blue)" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="DC3Ii83JLg7wSaAl1C-k-7" vertex="1">

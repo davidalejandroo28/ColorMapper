@@ -14,6 +14,8 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
+#include <cstdlib>
 
 #include <glad/glad.h>
 #include <SFML/OpenGL.hpp>
@@ -41,10 +43,10 @@ void RetrieveUserSettings()
 
 }
 
-int main()
+int ShowWindow()
 {
     sf::Context context;
-    
+
     //Initialize glad
     if (!gladLoadGLLoader((GLADloadproc)(context.getFunction)))
     {
@@ -90,11 +92,11 @@ int main()
         // clear the buffers
         glClearColor(0, 0, 0, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+
         // Call scripts
         sysManager->UpdateSystemScripts();
         sysManager->UpdateGameScripts();
-        
+
         // end the current frame (internally swaps the front and back buffers)
         window.display();
     }
@@ -104,5 +106,62 @@ int main()
     sysManager->DeleteInstance();
 
     return 0;
+}
+
+struct Vertex
+{
+    //X cordinate is 0, Y cordinate is 1
+    array<float, 2> cordinates;
+    int triangleIndex;
+};
+
+struct Triangle
+{
+    array<int, 3> triNeigh;
+    array<int, 3> vertices;
+};
+
+struct MeshData
+{
+    array<Vertex, 100> vertices;
+    vector<Triangle> triangles;
+};
+
+MeshData GenerateRandomMesh()
+{
+    //Generate random data set
+    array<int, 2> xCordBounds = { -10, 10 };
+    array<int, 2> yCordBounds = { -10, 10 };
+
+    //make a seed (this should somehow be randomized)
+    std::srand(1);
+
+    MeshData mesh;
+
+    //place each vertex randomly on a 2d plane
+    for (Vertex vertex : mesh.vertices)
+    {
+        float randomVal = (float)rand() / RAND_MAX;
+
+        //implementation of equation x or y = (distance of allowed bounds * random Value) + (left bound)
+        //Proof: https://www.desmos.com/calculator/oat3knijz3
+        vertex.cordinates[0] = ((xCordBounds[1] - xCordBounds[0]) * randomVal) + xCordBounds[0];
+        vertex.cordinates[1] = ((yCordBounds[1] - yCordBounds[0]) * randomVal) + yCordBounds[0];
+    }
+}
+
+int main()
+{
+    //Get user Input
+
+    //generate a random mesh to colorize
+    MeshData mesh = GenerateRandomMesh();
+
+    //colorize mesh
+
+    //somehow give it to the window to render
+    
+    //Render the window
+    return ShowWindow();
 }
 #endif
