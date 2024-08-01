@@ -12,13 +12,14 @@
 
 #pragma once
 
-#define DATASIZE 1000
+#define DATASIZE 9
 
 #include <iostream>
 #include <vector>
 #include <array>
 #include <cstdlib>
 #include <algorithm>
+#include <unordered_map>
 
 #include <glad/glad.h>
 #include <SFML/OpenGL.hpp>
@@ -130,9 +131,42 @@ struct MeshData
     vector<Triangle> triangles;
 };
 
+int ReturnMidIndex(int lowIndex, int highIndex)
+{
+    return (highIndex - lowIndex) / 2 + lowIndex;
+}
+
+//returns the index of the median in the array
+int FindMedian(const array<Vertex, DATASIZE>& vertices, int lowIndex, int highIndex, bool axis)
+{
+    vector<float> medianArry;
+    unordered_map<float, int> cordsToIndex;
+
+    for (int i = lowIndex; i <= highIndex; i++)
+    {
+        medianArry.push_back(vertices.at(i).cordinates[axis]);
+        cordsToIndex[vertices.at(i).cordinates[axis]] = i;
+    }
+
+    sort(medianArry.begin(), medianArry.end());
+
+    return cordsToIndex.at(medianArry.at(ReturnMidIndex(0, medianArry.size() - 1)));
+}
+
+//puts the vertex pivot in the center based on the value of the cordinates (when axis = 0 (use x-axis), axis = 1 (use y-axis)
+void PutPivotCenter(array<Vertex, DATASIZE>& vertices, const int lowIndex, const int midIndex, const int highIndex, const bool axis)
+{
+    int median = FindMedian(vertices, lowIndex, highIndex, axis);
+    Vertex tempVertex = vertices.at(midIndex);
+    vertices.at(midIndex) = vertices.at(median);
+    vertices.at(median) = tempVertex;
+
+    cout << "median is: " << " Axis " << axis << " " << vertices.at(midIndex).cordinates[axis] << endl;
+}
+
 //This sorts the vertex list into a 1D array kd-tree structure
 //This uses quick sort
-void SortVertexs(array<Vertex, DATASIZE>& vertices, int depth = 0, int lowIndex = 0, int highIndex = DATASIZE)
+void SortVertexs(array<Vertex, DATASIZE>& vertices, const int depth = 0, const int lowIndex = 0, const int highIndex = DATASIZE - 1)
 {
     //Return case to stop sorting
     if (lowIndex >= highIndex)
@@ -140,26 +174,69 @@ void SortVertexs(array<Vertex, DATASIZE>& vertices, int depth = 0, int lowIndex 
         return;
     }
 
-    //int midIndex = (lowIndex + highIndex) / 2;
-    int axisMedian = 0;
-    bool useYAxis = depth % 2;
+    //find middle point (it's m in:https://www.desmos.com/calculator/sbviponlyb)
+    int midIndex = ReturnMidIndex(lowIndex, highIndex);
+    bool useAxis = depth % 2; //do I use the x or y axis?
 
-    //find pivot to place in the center (the pivot is the middle most axis point)
-    if (useYAxis)
+    PutPivotCenter(vertices, lowIndex, midIndex, highIndex, useAxis);
+    
+    //perform quicksort
+    int leftIndex = lowIndex;
+    int rightIndex = highIndex;
+
+    //Have all lower vertices than the middle vertex be on the left from the middle vertex
+    while (true)
     {
-        for (int y = lowIndex; y < highIndex; y++)
+        if (leftIndex >= midIndex || rightIndex <= midIndex)
         {
-            //find middle point (it's m in:https://www.desmos.com/calculator/sbviponlyb)
-            auto middleIter = vertices.begin() + ((highIndex - lowIndex) / 2 + lowIndex);
-            nth_element(vertices.begin() + lowIndex, middleIter, vertices.begin() + highIndex); // find median and place it in the middle
+            //all left elements are lower than the mid index
+            break;
+        }
+        else if (vertices.at(leftIndex).cordinates[useAxis] < vertices.at(midIndex).cordinates[useAxis])
+        {
+            //this vertex is less than the middle
+            leftIndex++;
+        }
+        else if (vertices.at(rightIndex).cordinates[useAxis] > vertices.at(midIndex).cordinates[useAxis])
+        {
+            //this vertex is higher than the middle
+            rightIndex--;
+        }
+        else
+        {
+            //swap vertexs
+            Vertex tempVert = vertices.at(leftIndex);
+            vertices.at(leftIndex) = vertices.at(rightIndex);
+            vertices.at(rightIndex) = tempVert;
+
+            leftIndex++;
+            rightIndex--;
         }
     }
-    else
-    {
-       
-    }
-    
 
+    //recursivly call itself
+    SortVertexs(vertices, depth + 1, lowIndex, midIndex - 1);
+    SortVertexs(vertices, depth + 1, midIndex + 1, highIndex);
+}
+
+void printMesh(MeshData& mesh)
+{
+    cout << setprecision(2);
+
+    cout << "----Printing vertices----" << endl;
+    int index = 0;
+    for (auto vertex = mesh.vertices.begin(); vertex != mesh.vertices.end(); vertex++)
+    {
+        cout << "Index: " << setw(3) << left << index << " ";
+        cout << "X:" << setw(5) << left << vertex->cordinates[0] << 
+               " Y:" << setw(5) << left << vertex->cordinates[1] << 
+               " Tri Index: " << vertex->triangleIndex << endl;
+        index++;
+    }
+    cout << "-------------------------" << endl;
+
+    cout << "----Printing Triangles----" << endl;
+    cout << "TODO" << endl;
 }
 
 MeshData GenerateRandomMesh()
@@ -174,9 +251,9 @@ MeshData GenerateRandomMesh()
     MeshData mesh;
 
     //place each vertex randomly on a 2d plane
-    for (Vertex vertex : mesh.vertices)
+    for (Vertex& vertex : mesh.vertices)
     {
-        float randomVal = (float)rand() / RAND_MAX;
+        float randomVal = (float) rand() / RAND_MAX;
 
         //implementation of equation x or y = (distance of allowed bounds * random Value) + (left bound)
         //Proof: https://www.desmos.com/calculator/oat3knijz3
@@ -184,7 +261,8 @@ MeshData GenerateRandomMesh()
         vertex.cordinates[1] = ((yCordBounds[1] - yCordBounds[0]) * randomVal) + yCordBounds[0];
     }
 
-
+    //Sort the mesh
+    SortVertexs(mesh.vertices);
 
 
 
@@ -197,12 +275,7 @@ int main()
 
     //generate a random mesh to colorize
     MeshData mesh = GenerateRandomMesh();
-
-    /*array<int, 11> test = { 1, 2, 3, 4, 5, 6, 12, 8, 9, 10, 11 };
-
-    auto middleIter = test.begin() + (test.size() / 2);
-    nth_element(test.begin(), middleIter, test.end());
-    cout << "The median is: " << test[test.size() / 2] << endl;*/
+    printMesh(mesh);
 
     //colorize mesh
 
