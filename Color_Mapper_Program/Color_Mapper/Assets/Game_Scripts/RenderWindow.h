@@ -6,7 +6,7 @@
 #include <SFML/System.hpp>
 
 #include <glm/glm.hpp>
-#include "./System_Scripts/Runtime_Script.h"
+#include "Runtime_Script.h"
 
 using namespace std;
 class RenderWindow: public RuntimeScript

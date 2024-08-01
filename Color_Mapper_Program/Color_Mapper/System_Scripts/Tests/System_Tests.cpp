@@ -2,7 +2,7 @@
 
 #include "../../../Libraries/Catch_Testing_Framework/catch.hpp"
 
-#include "../Color_Mapper/System_Scripts/Event.h"
+#include "Event.h"
 
 //Event tests
 TEST_CASE("Calling events", "[Event.h]")

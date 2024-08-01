@@ -24,7 +24,7 @@
 #include "Event.h"
 #include "System_Manager.h"
 
-#include "../RenderWindow.h"
+#include "../../Assets/Game_Scripts/RenderWindow.h"
 
 using namespace std;
 
