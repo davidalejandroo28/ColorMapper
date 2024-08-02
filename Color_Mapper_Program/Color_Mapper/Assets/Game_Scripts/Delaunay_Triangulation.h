@@ -205,10 +205,10 @@ MeshData GenerateRandomMesh()
     }
 
     //Sort the mesh
-    SortVertexs(mesh);
+    //SortVertexs(mesh);
 
     //merge the mesh together
-    MergeMesh(mesh);
+    //MergeMesh(mesh);
 
     return mesh;
 }

@@ -5,7 +5,9 @@
 #include <glad/glad.h>
 #include <SFML/System.hpp>
 
+#include "../Libraries/delaunator.hpp"
 #include <glm/glm.hpp>
+
 #include "Runtime_Script.h"
 #include "Delaunay_Triangulation.h"
 
@@ -288,18 +290,18 @@ public:
         CheckErrors();
 
         //Render triangle points and give buffer to element array
-        //CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
-        //CreateVertexArray();
-        //glDrawArrays(GL_POINTS, 0, DATASIZE * 6);
+        CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
+        CreateVertexArray();
+        glDrawArrays(GL_POINTS, 0, DATASIZE * 6);
 
         //render triangles
-        //CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
-        //glDrawElements(GL_TRIANGLES, mesh.triangles.size() * 3, GL_UNSIGNED_INT, 0);
+        CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
+        glDrawElements(GL_TRIANGLES, mesh.triangles.size() * 3, GL_UNSIGNED_INT, 0);
 
         //Render Debug partition lines
-        CreateBuffer((float(&)[partitionSize]) partitionData, GL_ARRAY_BUFFER);
-        CreateVertexArray();
-        glDrawArrays(GL_LINES, 0, (DATASIZE / 3) * 12);
+        //CreateBuffer((float(&)[partitionSize]) partitionData, GL_ARRAY_BUFFER);
+        //CreateVertexArray();
+        //glDrawArrays(GL_LINES, 0, (DATASIZE / 3) * 12);
     }
 
     MeshData mesh;
@@ -310,11 +312,37 @@ public:
 
         //generate a random mesh to colorize
         mesh = GenerateRandomMesh();
-        printMesh(mesh);
+        //printMesh(mesh);
 
         //colorize mesh
+        vector<double> cordinates;
 
         
+        for (int x = 0; x < mesh.vertices.size(); x += 1)
+        {
+            cordinates.push_back(mesh.vertices[x].cordinates[0]);
+            cordinates.push_back(mesh.vertices[x].cordinates[1]);
+
+      
+        }
+
+        delaunator::Delaunator del(cordinates);
+        for (int tri = 0; tri < del.triangles.size() - 3; tri += 3)
+        {
+            Triangle triangle;
+            triangle.vertices[0] = del.triangles[tri] / 2;
+            triangle.vertices[1] = del.triangles[tri + 1] / 2;
+            triangle.vertices[2] = del.triangles[tri + 2] / 2;
+            
+            array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
+            mesh.vertices[del.triangles[tri] / 2].color = randomColor;
+            mesh.vertices[del.triangles[tri + 1] / 2].color = randomColor;
+            mesh.vertices[del.triangles[tri + 2] / 2].color = randomColor;
+                
+            mesh.triangles.push_back(triangle);
+        }
+        
+        printMesh(mesh);
 
         InitializeRender();
 	}
