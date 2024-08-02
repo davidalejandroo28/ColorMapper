@@ -7,6 +7,7 @@
 
 #include <glm/glm.hpp>
 #include "Runtime_Script.h"
+#include "Delaunay_Triangulation.h"
 
 using namespace std;
 class RenderWindow: public RuntimeScript
@@ -96,24 +97,62 @@ public:
 
         CreateShaders();
 
-        float vertexs[] = {
-            //positions          //colors          
-            //Top
-            -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, //BL
-            0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //BR
-            -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //TL
+        const int stride = 6;
+        float vertexs[DATASIZE * stride] = { };
+      
+        int vertexIndex = 0;
+        for (int x = 0; x < DATASIZE * stride; x += stride)
+        {
+            if (vertexIndex >= mesh.vertices.size())
+            {
+                break;
+            }
 
-            0.5f, -0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //BR
-            -0.5f, 0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //TL
-            0.5f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, //TR
-        };
+            //XYZ positions
+            vertexs[x] = mesh.vertices[vertexIndex].cordinates[0] / (float) (abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
+            vertexs[x + 1] = mesh.vertices[vertexIndex].cordinates[1] / (float) (abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
+            vertexs[x + 2] = 0.0f;
+
+            //Colors (RGB)
+            vertexs[x + 3] = (float) mesh.vertices[vertexIndex].color[0] / 255.0f;
+            vertexs[x + 4] = (float) mesh.vertices[vertexIndex].color[1] / 255.0f;
+            vertexs[x + 5] = (float) mesh.vertices[vertexIndex].color[2] / 255.0f;
+
+            vertexIndex++;
+        }
+
+        //Gotta put it in this format:
+        //float vertexs[] = {
+        //    //positions          //colors          
+        //    //Top
+        //    -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, //BL
+        //    0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //BR
+        //    -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //TL
+
+        //    0.5f, -0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //BR
+        //    -0.5f, 0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //TL
+        //    0.5f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, //TR
+        //};
 
         //This makes shapes out of the vertexs provided
-        unsigned int indices[] = {
-            0, 1, 2,
-            5, 2, 1,
-        };
+        const int indiceStride = 3;
+        unsigned int indices[(DATASIZE / 2) * indiceStride] = { };
 
+        int triangle = 0;
+        for (int tri = 0; tri < (DATASIZE / 2) * indiceStride; tri += indiceStride)
+        {
+            if (triangle >= mesh.triangles.size())
+            {
+                break;
+            }
+            
+            indices[tri] = mesh.triangles.at(triangle).vertices[0];
+            indices[tri + 1] = mesh.triangles.at(triangle).vertices[1];
+            indices[tri + 2] = mesh.triangles.at(triangle).vertices[2];
+            triangle++;
+        }
+
+        //put the data into the gpu
         unsigned int vertexBuffer = CreateBuffer(vertexs, GL_ARRAY_BUFFER);
         unsigned int indiceElementBuffer = CreateBuffer(indices, GL_ELEMENT_ARRAY_BUFFER);
 
@@ -124,11 +163,24 @@ public:
     void Render()
     {
         CheckErrors();
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_POINTS, 0, DATASIZE * 6);
+        glDrawElements(GL_TRIANGLES, mesh.triangles.size() * 3, GL_UNSIGNED_INT, 0);
     }
+
+    MeshData mesh;
 
 	void Start()
 	{
+        //Get user Input
+
+        //generate a random mesh to colorize
+        mesh = GenerateRandomMesh();
+        printMesh(mesh);
+
+        //colorize mesh
+
+        
+
         InitializeRender();
 	}
 
