@@ -54,19 +54,19 @@ int FindMedian(const array<Vertex, DATASIZE>& vertices, int lowIndex, int highIn
 }
 
 //puts the vertex pivot in the center based on the value of the cordinates (when axis = 0 (use x-axis), axis = 1 (use y-axis)
-void PutPivotCenter(array<Vertex, DATASIZE>& vertices, const int lowIndex, const int midIndex, const int highIndex, const bool axis)
+void PutPivotCenter(MeshData& mesh, const int lowIndex, const int midIndex, const int highIndex, const bool axis)
 {
-    int median = FindMedian(vertices, lowIndex, highIndex, axis);
-    Vertex tempVertex = vertices.at(midIndex);
-    vertices.at(midIndex) = vertices.at(median);
-    vertices.at(median) = tempVertex;
+    int median = FindMedian(mesh.vertices, lowIndex, highIndex, axis);
+    Vertex tempVertex = mesh.vertices.at(midIndex);
+    mesh.vertices.at(midIndex) = mesh.vertices.at(median);
+    mesh.vertices.at(median) = tempVertex;
 
-    cout << "median is: " << " Axis " << axis << " " << vertices.at(midIndex).cordinates[axis] << endl;
+    cout << "median is: " << " Axis " << axis << " " << mesh.vertices.at(midIndex).cordinates[axis] << endl;
 }
 
 //This sorts the vertex list into a 1D array kd-tree structure
 //This uses quick sort
-void SortVertexs(array<Vertex, DATASIZE>& vertices, const int depth = 0, const int lowIndex = 0, const int highIndex = DATASIZE - 1)
+void SortVertexs(MeshData& mesh, const int depth = 0, const int lowIndex = 0, const int highIndex = DATASIZE - 1)
 {
     //Return case to stop sorting
     if (lowIndex >= highIndex)
@@ -78,7 +78,7 @@ void SortVertexs(array<Vertex, DATASIZE>& vertices, const int depth = 0, const i
     int midIndex = ReturnMidIndex(lowIndex, highIndex);
     bool useAxis = depth % 2; //do I use the x or y axis?
 
-    PutPivotCenter(vertices, lowIndex, midIndex, highIndex, useAxis);
+    PutPivotCenter(mesh, lowIndex, midIndex, highIndex, useAxis);
 
     //perform quicksort
     int leftIndex = lowIndex;
@@ -92,12 +92,12 @@ void SortVertexs(array<Vertex, DATASIZE>& vertices, const int depth = 0, const i
             //all left elements are lower than the mid index
             break;
         }
-        else if (vertices.at(leftIndex).cordinates[useAxis] < vertices.at(midIndex).cordinates[useAxis])
+        else if (mesh.vertices.at(leftIndex).cordinates[useAxis] < mesh.vertices.at(midIndex).cordinates[useAxis])
         {
             //this vertex is less than the middle
             leftIndex++;
         }
-        else if (vertices.at(rightIndex).cordinates[useAxis] > vertices.at(midIndex).cordinates[useAxis])
+        else if (mesh.vertices.at(rightIndex).cordinates[useAxis] > mesh.vertices.at(midIndex).cordinates[useAxis])
         {
             //this vertex is higher than the middle
             rightIndex--;
@@ -105,9 +105,9 @@ void SortVertexs(array<Vertex, DATASIZE>& vertices, const int depth = 0, const i
         else
         {
             //swap vertexs
-            Vertex tempVert = vertices.at(leftIndex);
-            vertices.at(leftIndex) = vertices.at(rightIndex);
-            vertices.at(rightIndex) = tempVert;
+            Vertex tempVert = mesh.vertices.at(leftIndex);
+            mesh.vertices.at(leftIndex) = mesh.vertices.at(rightIndex);
+            mesh.vertices.at(rightIndex) = tempVert;
 
             leftIndex++;
             rightIndex--;
@@ -115,8 +115,8 @@ void SortVertexs(array<Vertex, DATASIZE>& vertices, const int depth = 0, const i
     }
 
     //recursivly call itself
-    SortVertexs(vertices, depth + 1, lowIndex, midIndex - 1);
-    SortVertexs(vertices, depth + 1, midIndex + 1, highIndex);
+    SortVertexs(mesh, depth + 1, lowIndex, midIndex - 1);
+    SortVertexs(mesh, depth + 1, midIndex + 1, highIndex);
 }
 
 void printMesh(MeshData& mesh)
@@ -159,6 +159,12 @@ void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZ
         triangle.vertices = { lowVertIndex, lowVertIndex + 1, lowVertIndex + 2 };
         mesh.triangles.push_back(triangle);
 
+        //randomize color to see different triangles
+        array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
+        mesh.vertices.at(lowVertIndex).color = randomColor;
+        mesh.vertices.at(lowVertIndex + 1).color = randomColor;
+        mesh.vertices.at(lowVertIndex + 2).color = randomColor;
+
         //TODO, add triangle indexs when needed
         return;
     }
@@ -199,7 +205,7 @@ MeshData GenerateRandomMesh()
     }
 
     //Sort the mesh
-    SortVertexs(mesh.vertices);
+    SortVertexs(mesh);
 
     //merge the mesh together
     MergeMesh(mesh);
