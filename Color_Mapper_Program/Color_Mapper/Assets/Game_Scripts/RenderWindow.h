@@ -313,7 +313,7 @@ public:
 
         //generate a random mesh to colorize
         mesh = GenerateRandomMesh();
-        //printMesh(mesh);
+        printMesh(mesh);
 
         //colorize mesh
         vector<double> cordinates;
