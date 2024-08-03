@@ -82,13 +82,12 @@ public:
         glBindVertexArray(vertexArray);
 
         //pos attribute
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
         //color attribute
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
-        glEnableVertexAttribArray(2);
 
         return vertexArray;
     }
@@ -100,13 +99,13 @@ public:
         //float vertexs[] = {
         //    //positions          //colors          
         //    //Top
-        //    -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 1.0f, //BL
-        //    0.5f, -0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //BR
-        //    -0.5f, 0.5f, 0.0f,  1.0f, 1.0f, 1.0f, //TL
+        //    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //BL
+        //    0.5f, -0.5f,  1.0f, 1.0f, 1.0f, //BR
+        //    -0.5f, 0.5f,  1.0f, 1.0f, 1.0f, //TL
 
-        //    0.5f, -0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //BR
-        //    -0.5f, 0.5f, 0.0f,  0.5f, 0.5f, 0.5f, //TL
-        //    0.5f, 0.5f, 0.0f,   0.5f, 0.5f, 0.5f, //TR
+        //    0.5f, -0.5f,  0.5f, 0.5f, 0.5f, //BR
+        //    -0.5f, 0.5f,  0.5f, 0.5f, 0.5f, //TL
+        //    0.5f, 0.5f,   0.5f, 0.5f, 0.5f, //TR
         //};
 
         array<type, dataSize> vertexs;
@@ -124,34 +123,17 @@ public:
             {
                 vertexs[x + v * stride] = mesh.vertices.at(mesh.triangles.at(triangleIndex).vertices[v]).cordinates[0] / (float)(abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
                 vertexs[x + v * stride + 1] = mesh.vertices.at(mesh.triangles.at(triangleIndex).vertices[v]).cordinates[1] / (float)(abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
-                vertexs[x + v * stride + 2] = 0.0f;
+
      
-                vertexs[x + v * stride + 3] = (float) mesh.triangles.at(triangleIndex).color[0] / 255;
-                vertexs[x + v * stride + 4] = (float) mesh.triangles.at(triangleIndex).color[1] / 255;
-                vertexs[x + v * stride + 5] = (float) mesh.triangles.at(triangleIndex).color[2] / 255;
+                vertexs[x + v * stride + 2] = (float) mesh.triangles.at(triangleIndex).color[0] / 255;
+                vertexs[x + v * stride + 3] = (float) mesh.triangles.at(triangleIndex).color[1] / 255;
+                vertexs[x + v * stride + 4] = (float) mesh.triangles.at(triangleIndex).color[2] / 255;
             }
         
             triangleIndex++;
         }
 
         return vertexs;
-    }
-
-    template<typename type, int dataSize>
-    array<type, dataSize> ConvertIndiceData(int stride)
-    {
-        array<type, dataSize> indices;
-
-        int triangle = 0;
-        for (int tri = 0; tri < dataSize; tri += stride)
-        {
-
-            indices[triangle] = triangle;
-            
-            triangle++;
-        }
-
-        return indices;
     }
 
     //returns 2 points of a line
@@ -253,13 +235,9 @@ public:
     static const int partitionSize = (DATASIZE / 3) * partitionStride;
     array<float, partitionSize> partitionData {}; 
 
-    static const int stride = 6;
+    static const int stride = 5;
     static const int verticeSize = DATASIZE * stride * 3;
     array<float, verticeSize> vertexs {};
-
-    static const int indiceStride = 3;
-    static const int indiceSize = (DATASIZE / 2) * indiceStride;
-    array<unsigned int, indiceSize> indices {};
 
     void InitializeRender()
     {
@@ -275,11 +253,6 @@ public:
         CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
         //Bind the data for the element array buffer
         CreateVertexArray();
-    
-        //This makes shapes out of the vertexs provided
-        //indices = ConvertIndiceData<unsigned int, indiceSize>(indiceStride);        
-        //unsigned int indiceElementBuffer = CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
-        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceElementBuffer); 
     }
 
     void Render()
@@ -290,14 +263,6 @@ public:
         CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
         CreateVertexArray();
         glDrawArrays(GL_TRIANGLES, 0, DATASIZE * 6);
-
-        //CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
-        //CreateVertexArray();
-        //glDrawArrays(GL_POINTS, 0, DATASIZE * 6);
-
-        //render triangles
-        //CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
-        //glDrawElements(GL_TRIANGLES, mesh.triangles.size() * 3, GL_UNSIGNED_INT, 0);
 
         //Render Debug partition lines
         //CreateBuffer((float(&)[partitionSize]) partitionData, GL_ARRAY_BUFFER);
@@ -313,18 +278,14 @@ public:
 
         //generate a random mesh to colorize
         mesh = GenerateRandomMesh();
-        printMesh(mesh);
 
         //colorize mesh
         vector<double> cordinates;
 
-        
         for (int x = 0; x < mesh.vertices.size(); x += 1)
         {
             cordinates.push_back(mesh.vertices[x].cordinates[0]);
             cordinates.push_back(mesh.vertices[x].cordinates[1]);
-
-      
         }
 
         delaunator::Delaunator del(cordinates);

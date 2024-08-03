@@ -17,7 +17,7 @@ struct Vertex
 struct Triangle
 {
     array<int, 3> triNeigh;
-    array<int, 3> vertices;
+    array<int, 3> vertices; //<== points to each vertex index in the vertice array
     array<int, 3> color = { 255, 255, 255 }; //color range is 0 to 255 and R G B
 };
 
