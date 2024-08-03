@@ -5,13 +5,12 @@
 #include <algorithm>
 #include <unordered_map>
 
-#define DATASIZE 100
+#define DATASIZE 1000
 
 struct Vertex
 {
     //X cordinate is 0, Y cordinate is 1
     array<float, 2> cordinates;
-    array<int, 3> color = { 255, 255, 255 }; //color range is 0 to 255 and R G B
     int triangleIndex;
 };
 
@@ -19,6 +18,7 @@ struct Triangle
 {
     array<int, 3> triNeigh;
     array<int, 3> vertices;
+    array<int, 3> color = { 255, 255, 255 }; //color range is 0 to 255 and R G B
 };
 
 struct MeshData
@@ -26,8 +26,8 @@ struct MeshData
     array<Vertex, DATASIZE> vertices;
     vector<Triangle> triangles;
 
-    array<int, 2> xAxisRange = { -10, 10 };
-    array<int, 2> yAxisRange = { -10, 10 };
+    array<float, 2> xAxisRange = { -10, 10 };
+    array<float, 2> yAxisRange = { -10, 10 };
 };
 
 
@@ -161,9 +161,9 @@ void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZ
 
         //randomize color to see different triangles
         array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
-        mesh.vertices.at(lowVertIndex).color = randomColor;
+        /*mesh.vertices.at(lowVertIndex).color = randomColor;
         mesh.vertices.at(lowVertIndex + 1).color = randomColor;
-        mesh.vertices.at(lowVertIndex + 2).color = randomColor;
+        mesh.vertices.at(lowVertIndex + 2).color = randomColor;*/
 
         //TODO, add triangle indexs when needed
         return;
@@ -203,6 +203,12 @@ MeshData GenerateRandomMesh()
         randomVal = (float)rand() / RAND_MAX;
         vertex.cordinates[1] = ((mesh.yAxisRange[1] - mesh.yAxisRange[0]) * randomVal) + mesh.yAxisRange[0];
     }
+
+    //setting camera bounds
+    mesh.vertices[0].cordinates = { mesh.xAxisRange[0], mesh.yAxisRange[0] };
+    mesh.vertices[1].cordinates = { mesh.xAxisRange[0], mesh.yAxisRange[1] };
+    mesh.vertices[2].cordinates = { mesh.xAxisRange[1], mesh.yAxisRange[0] };
+    mesh.vertices[3].cordinates = { mesh.xAxisRange[1], mesh.yAxisRange[1] };
 
     //Sort the mesh
     //SortVertexs(mesh);

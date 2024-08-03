@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 #include <SFML/System.hpp>
 
-#include "../Libraries/delaunator.hpp"
+#include "../../Libraries/delaunator.hpp"
 #include <glm/glm.hpp>
 
 #include "Runtime_Script.h"
@@ -111,25 +111,27 @@ public:
 
         array<type, dataSize> vertexs;
 
-        int vertexIndex = 0;
-        for (int x = 0; x < dataSize; x += stride)
+        int triangleIndex = 0;
+        for (int x = 0; x < dataSize; x += stride * 3)
         {
-            if (vertexIndex >= mesh.vertices.size())
+            if (triangleIndex >= mesh.triangles.size())
             {
                 break;
             }
 
-            //XYZ positions
-            vertexs[x] = mesh.vertices[vertexIndex].cordinates[0] / (float)(abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
-            vertexs[x + 1] = mesh.vertices[vertexIndex].cordinates[1] / (float)(abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
-            vertexs[x + 2] = 0.0f;
-
-            //Colors (RGB)
-            vertexs[x + 3] = (float)mesh.vertices[vertexIndex].color[0] / 255.0f;
-            vertexs[x + 4] = (float)mesh.vertices[vertexIndex].color[1] / 255.0f;
-            vertexs[x + 5] = (float)mesh.vertices[vertexIndex].color[2] / 255.0f;
-
-            vertexIndex++;
+            //add each triangles vertex
+            for (int v = 0; v < 3; v++)
+            {
+                vertexs[x + v * stride] = mesh.vertices.at(mesh.triangles.at(triangleIndex).vertices[v]).cordinates[0] / (float)(abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
+                vertexs[x + v * stride + 1] = mesh.vertices.at(mesh.triangles.at(triangleIndex).vertices[v]).cordinates[1] / (float)(abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
+                vertexs[x + v * stride + 2] = 0.0f;
+     
+                vertexs[x + v * stride + 3] = (float) mesh.triangles.at(triangleIndex).color[0] / 255;
+                vertexs[x + v * stride + 4] = (float) mesh.triangles.at(triangleIndex).color[1] / 255;
+                vertexs[x + v * stride + 5] = (float) mesh.triangles.at(triangleIndex).color[2] / 255;
+            }
+        
+            triangleIndex++;
         }
 
         return vertexs;
@@ -143,14 +145,9 @@ public:
         int triangle = 0;
         for (int tri = 0; tri < dataSize; tri += stride)
         {
-            if (triangle >= mesh.triangles.size())
-            {
-                break;
-            }
 
-            indices[tri] = mesh.triangles.at(triangle).vertices[0];
-            indices[tri + 1] = mesh.triangles.at(triangle).vertices[1];
-            indices[tri + 2] = mesh.triangles.at(triangle).vertices[2];
+            indices[triangle] = triangle;
+            
             triangle++;
         }
 
@@ -257,7 +254,7 @@ public:
     array<float, partitionSize> partitionData {}; 
 
     static const int stride = 6;
-    static const int verticeSize = DATASIZE * stride;
+    static const int verticeSize = DATASIZE * stride * 3;
     array<float, verticeSize> vertexs {};
 
     static const int indiceStride = 3;
@@ -271,7 +268,7 @@ public:
         CreateShaders();
 
         //DEBUG partition lines
-        partitionData = ConvertPartitionData<float, partitionSize>(partitionStride);
+        //partitionData = ConvertPartitionData<float, partitionSize>(partitionStride);
 
         //Verted data
         vertexs = ConvertVertexData<float, verticeSize>(stride);
@@ -280,9 +277,9 @@ public:
         CreateVertexArray();
     
         //This makes shapes out of the vertexs provided
-        indices = ConvertIndiceData<unsigned int, indiceSize>(indiceStride);        
-        unsigned int indiceElementBuffer = CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceElementBuffer); 
+        //indices = ConvertIndiceData<unsigned int, indiceSize>(indiceStride);        
+        //unsigned int indiceElementBuffer = CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indiceElementBuffer); 
     }
 
     void Render()
@@ -292,11 +289,15 @@ public:
         //Render triangle points and give buffer to element array
         CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
         CreateVertexArray();
-        glDrawArrays(GL_POINTS, 0, DATASIZE * 6);
+        glDrawArrays(GL_TRIANGLES, 0, DATASIZE * 6);
+
+        //CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
+        //CreateVertexArray();
+        //glDrawArrays(GL_POINTS, 0, DATASIZE * 6);
 
         //render triangles
-        CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
-        glDrawElements(GL_TRIANGLES, mesh.triangles.size() * 3, GL_UNSIGNED_INT, 0);
+        //CreateBuffer((unsigned int(&)[indiceSize]) indices, GL_ELEMENT_ARRAY_BUFFER);
+        //glDrawElements(GL_TRIANGLES, mesh.triangles.size() * 3, GL_UNSIGNED_INT, 0);
 
         //Render Debug partition lines
         //CreateBuffer((float(&)[partitionSize]) partitionData, GL_ARRAY_BUFFER);
@@ -327,17 +328,15 @@ public:
         }
 
         delaunator::Delaunator del(cordinates);
-        for (int tri = 0; tri < del.triangles.size() - 3; tri += 3)
+        for (int tri = 0; tri < del.triangles.size(); tri += 3)
         {
             Triangle triangle;
-            triangle.vertices[0] = del.triangles[tri] / 2;
-            triangle.vertices[1] = del.triangles[tri + 1] / 2;
-            triangle.vertices[2] = del.triangles[tri + 2] / 2;
-            
+            triangle.vertices[0] = del.triangles[tri];
+            triangle.vertices[1] = del.triangles[tri + 1];
+            triangle.vertices[2] = (del.triangles[tri + 2]);
+
             array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
-            mesh.vertices[del.triangles[tri] / 2].color = randomColor;
-            mesh.vertices[del.triangles[tri + 1] / 2].color = randomColor;
-            mesh.vertices[del.triangles[tri + 2] / 2].color = randomColor;
+            triangle.color = randomColor;
                 
             mesh.triangles.push_back(triangle);
         }
