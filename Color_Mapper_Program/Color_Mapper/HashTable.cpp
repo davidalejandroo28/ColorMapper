@@ -3,11 +3,29 @@
 #include <utility>
 #include <random>
 #include <list>
-#include "Delaunay_Triangulation.h"
 #include "Hashtable.h"
 
 using namespace std;
 
+
+
+void Triangle::alterRBG(Color new_color){
+    color[0] = new_color.RBG[0];
+    color[1] = new_color.RBG[1];
+    color[2] = new_color.RBG[2];
+    RGBvalue = color[0] + (color[1] * 2) + (color[2] * 3);
+}
+
+bool Triangle::checkNeighbors(Triangle newShape, array<Vertex,DATASIZE> vertex_location) {
+    for(int i = 0; i < sizeof(newShape.vertices); i ++){
+        for(int j = 0; j < sizeof(newShape.vertices); j++) {
+            if (vertex_location[vertices[i]].coordinates == vertex_location[newShape.vertices[j]].coordinates){
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 int HashTable::hashFunction(int key) {
     return key % 10;
@@ -23,9 +41,9 @@ void HashTable::insertHash(int key, Triangle &shape) {
     for (; iter != end(index); iter++) {
         if (iter->first == key) {
             for (int j = 0; j < iter->second.size(); j++) {
-                if(iter->second[j].checkNeighbors(shape)){
+                if(iter->second[j].checkNeighbors(shape, vertex_list)){
                     while (sameColors) {
-                        shape.alterRBG(color_list);
+                        shape.alterRBG(color_list[0]);
                         if(shape.color[0] != iter->second[j].color[0] || shape.color[1] != iter->second[j].color[1] || shape.color[2] != iter->second[j].color[2]){
                             sameColors = false;
                         }
