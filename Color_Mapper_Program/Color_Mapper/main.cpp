@@ -1,11 +1,7 @@
 #include <iostream>
-#include <array>
 #include <vector>
 #include <cstdlib>
-#include <algorithm>
-#include <unordered_map>
 #include <iomanip>
-#include <random>
 #include "Hashtable.h"
 
 
@@ -85,16 +81,21 @@ int main() {
     }
 
     //GENERATE MESH
-/*
+
     MeshData mesh;
     mesh = GenerateRandomMesh();
-
+    vector<double> cordinates;
+    for (int x = 0; x < mesh.vertices.size(); x += 1)
+    {
+        cordinates.push_back(mesh.vertices[x].coordinates[0]);
+        cordinates.push_back(mesh.vertices[x].coordinates[1]);
+    }
     printMesh(mesh);
 
     //GENERATE HASHTABLE
     HashTable HTable(mesh.vertices, mesh.triangles, palette);
-    //Pass as pointer maybe
-*/
+
+/*
     //START COLOR ASSIGNING
     bool colorSetSuccessful;
     int pal_num;
@@ -105,10 +106,10 @@ int main() {
             pal_num = (rand()%palette.size());
             mesh.triangles[i].alterRBG(palette[pal_num]);
             //Have the same color value for the chart
-            HTable.insertHash(mesh.triangles[i].RGBvalue, mesh.triangles[i], Color in_color);
+            HTable.insertHash(mesh.triangles[i].RGBvalue, mesh.triangles[i], palette[pal_num]);
         }
     }
-
+*/
     //All triangles have colors
     cout << "done" << endl;
 }
