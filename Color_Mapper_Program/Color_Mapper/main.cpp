@@ -5,18 +5,11 @@
 #include <algorithm>
 #include <unordered_map>
 #include <iomanip>
-//#include "Delaunay_Triangulation.h"
+#include <random>
 #include "Hashtable.h"
 
 
 using namespace std;
-
-/*
-void selectRandomRGB(){
-    static default_random_engine  rng;
-    uniform_int_distribution<int> distr(0,255);
-}
-*/
 
 void assignPalette(vector<Color>&palette, int option){
     palette.clear();
@@ -56,6 +49,15 @@ void assignPalette(vector<Color>&palette, int option){
 
 
 int main() {
+    srand(time(0));
+
+    //Test random
+/*
+    for (int i = 0; i < 100; i++) {
+        cout << (rand()%10) << endl;
+    }
+*/
+
     int option;
     vector<Color> palette;
     bool done = false;
@@ -81,57 +83,33 @@ int main() {
             }
         }
     }
-    for (int i = 0; i < 10; i++) {
-        srand((unsigned) time(0));
-        int result = 0 + (rand() % palette.size());
-        cout << result << endl;
-    }
 
+    //GENERATE MESH
 /*
-    //RUN DATA
     MeshData mesh;
     mesh = GenerateRandomMesh();
 
-    //colorize mesh
-    vector<double> cordinates;
-
-    for (int x = 0; x < mesh.vertices.size(); x += 1) {
-        cordinates.push_back(mesh.vertices[x].coordinates[0]);
-        cordinates.push_back(mesh.vertices[x].coordinates[1]);
-    }
-
-    delaunator::Delaunator del(cordinates);
-    for (int tri = 0; tri < del.triangles.size(); tri += 3)
-    {
-        Triangle triangle;
-        triangle.vertices[0] = del.triangles[tri];
-        triangle.vertices[1] = del.triangles[tri + 1];
-        triangle.vertices[2] = (del.triangles[tri + 2]);
-
-        //array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
-        triangle.color = randomColor;
-
-        mesh.triangles.push_back(triangle);
-    }
-
     printMesh(mesh);
 
+    //GENERATE HASHTABLE
     HashTable HTable(mesh.vertices, mesh.triangles, palette);
     //Pass as pointer maybe
-
-    //Check for completely random outputs
+*/
+    //START COLOR ASSIGNING
     bool colorSetSuccessful;
+    int pal_num;
     for(int i = 0; i < HTable.getTriangleList().size(); i++){
         colorSetSuccessful = false;
         while(!colorSetSuccessful) {
-            //Have Random here
-            mesh.triangles[i].alterRBG(palette[0]);
+            cout << rand()%palette.size() << endl;
+            pal_num = (rand()%palette.size());
+            mesh.triangles[i].alterRBG(palette[pal_num]);
             //Have the same color value for the chart
-            HTable.insertHash(mesh.triangles[i].RGBvalue, mesh.triangles[i]);
+            HTable.insertHash(mesh.triangles[i].RGBvalue, mesh.triangles[i], Color in_color);
         }
     }
-    */
-    //All triangles calculated and table is ready.
+
+    //All triangles have colors
     cout << "done" << endl;
 }
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <vector>
 #include <utility>
 #include <random>
 #include <list>
@@ -31,8 +32,12 @@ int HashTable::hashFunction(int key) {
     return key % 10;
 }
 
+vector<Triangle> HashTable::getTriangleList() {
+    return triangles;
+}
+
 //Check if neighbors, and if so change color until colors are alright
-void HashTable::insertHash(int key, Triangle &shape) {
+void HashTable::insertHash(int key, Triangle &shape, Color try_color) {
     int hashvalue = hashFunction(key);
     list<pair<int, vector<Triangle>>> &index = table[hashvalue];
     auto iter = begin(index);
@@ -48,7 +53,7 @@ void HashTable::insertHash(int key, Triangle &shape) {
                             sameColors = false;
                         }
                     }
-                    insertHash(shape.RGBvalue, shape);
+                    insertHash(shape.RGBvalue, shape, try_color);
                     break;
                 }
             }
