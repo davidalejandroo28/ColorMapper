@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define DATASIZE 100
+#define DATASIZE 10000
 
 
 

@@ -3,7 +3,8 @@
 #include <cstdlib>
 #include <iomanip>
 #include "Hashtable.h"
-#include "Graph.h"
+//#include "Graph.h"
+
 
 using namespace std;
 
@@ -82,38 +83,39 @@ int main() {
 
     //GENERATE MESH
 
-    MeshData mesh;
-    mesh = GenerateRandomMesh();
+    MeshData meshHash;
+    meshHash = GenerateRandomMesh();
     vector<double> cordinates;
-    for (int x = 0; x < mesh.vertices.size(); x += 1)
+    for (int x = 0; x < meshHash.vertices.size(); x += 1)
     {
-        cordinates.push_back(mesh.vertices[x].coordinates[0]);
-        cordinates.push_back(mesh.vertices[x].coordinates[1]);
+        cordinates.push_back(meshHash.vertices[x].coordinates[0]);
+        cordinates.push_back(meshHash.vertices[x].coordinates[1]);
     }
-    printMesh(mesh);
+    //printMesh(meshHash);
 
     //GENERATE HASHTABLE
-    HashTable HTable(mesh.vertices, mesh.triangles, palette);
+    HashTable HTable(meshHash.vertices, meshHash.triangles, palette);
 
-    Graph graph;
-    graph.setNeighbors(mesh.triangles);
+    //Graph graph;
+    //graph.setNeighbors(mesh.triangles);
 
+    MeshData meshGraph = meshHash;
 
     //START COLOR ASSIGNING
-    bool colorSetSuccessful;
+    bool colorSetHash = false;
+    bool colorSetGraph = false;
     int pal_num;
-    cout << mesh.triangles.size() << endl;
-    cout << mesh.vertices.size() << endl;
+    cout << meshHash.triangles.size() << endl;
+    cout << meshHash.vertices.size() << endl;
     for(int i = 0; i < HTable.getTriangleList().size(); i++){
-        colorSetSuccessful = false;
-        while(!colorSetSuccessful) {
+        colorSetHash = false;
+        colorSetGraph = false;
+        while(!colorSetHash && !colorSetGraph) {
             pal_num = (rand()%palette.size());
-            mesh.triangles[i].alterRBG(palette[pal_num]);
+            meshHash.triangles[i].alterRBG(palette[pal_num]);
             //Have the same color value for the chart
-            HTable.insertHash(mesh.triangles[i], palette[pal_num], colorSetSuccessful);
-
-            graph.coloringShapes(mesh.triangles[i], colorSetSuccessful, palette[pal_num]); // Graph Algorithm
-
+            HTable.insertHash(meshHash.triangles[i], palette[pal_num], colorSetHash);
+            //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
         }
     }
     HTable.printTable();

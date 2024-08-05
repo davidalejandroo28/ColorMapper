@@ -9,7 +9,10 @@
 #include <iomanip>
 #include "Hashtable.h"
 
-#define DATASIZE 100
+
+//Ask about not even vertices count
+//Ask about screen size
+#define DATASIZE 10000
 
 using namespace std;
 
