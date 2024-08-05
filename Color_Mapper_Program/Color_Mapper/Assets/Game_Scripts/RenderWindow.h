@@ -41,13 +41,13 @@ public:
     }
 
     template<typename FLOAT, size_t SZ>
-    unsigned int CreateBuffer(FLOAT(&bufferData)[SZ], GLenum&& bufferType)
+    unsigned int CreateBuffer(FLOAT(*bufferData)[SZ], GLenum&& bufferType)
     {
         unsigned int bufferId;
 
         glGenBuffers(1, &bufferId);
         glBindBuffer(bufferType, bufferId);
-        glBufferData(bufferType, sizeof(bufferData), bufferData, GL_STATIC_DRAW); //add data to the buffer
+        glBufferData(bufferType, sizeof(*bufferData), bufferData, GL_STATIC_DRAW); //add data to the buffer
 
         return bufferId;
     }
@@ -96,7 +96,7 @@ public:
     }
 
     template<typename type, int dataSize>
-    array<type, dataSize> ConvertVertexData(int stride)
+    array<type, dataSize>* ConvertVertexData(int stride)
     {
         //Gotta put it in this format:
         //float vertexs[] = {
@@ -111,12 +111,12 @@ public:
         //    0.5f, 0.5f,   0.5f, 0.5f, 0.5f, //TR
         //};
 
-        array<type, dataSize> vertexs;
+        array<type, dataSize>* vertexs = new array<type, dataSize>();
 
         int triangleIndex = 0;
         for (int x = 0; x < dataSize; x += stride * 3)
         {
-            if (triangleIndex >= mesh.triangles.size())
+            if (triangleIndex >= mesh->triangles.size())
             {
                 break;
             }
@@ -124,13 +124,13 @@ public:
             //add each triangles vertex
             for (int v = 0; v < 3; v++)
             {
-                vertexs[x + v * stride] = mesh.vertices.at(mesh.triangles.at(triangleIndex).vertices[v]).cordinates[0] / (float)(abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
-                vertexs[x + v * stride + 1] = mesh.vertices.at(mesh.triangles.at(triangleIndex).vertices[v]).cordinates[1] / (float)(abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
+                vertexs->at(x + v * stride) = mesh->vertices.at(mesh->triangles.at(triangleIndex).vertices[v]).cordinates[0] / (float)(abs(mesh->xAxisRange[0]) + abs(mesh->xAxisRange[1])) * 2;
+                vertexs->at(x + v * stride + 1) = mesh->vertices.at(mesh->triangles.at(triangleIndex).vertices[v]).cordinates[1] / (float)(abs(mesh->yAxisRange[0]) + abs(mesh->yAxisRange[1])) * 2;
 
      
-                vertexs[x + v * stride + 2] = (float) mesh.triangles.at(triangleIndex).color[0] / 255;
-                vertexs[x + v * stride + 3] = (float) mesh.triangles.at(triangleIndex).color[1] / 255;
-                vertexs[x + v * stride + 4] = (float) mesh.triangles.at(triangleIndex).color[2] / 255;
+                vertexs->at(x + v * stride + 2) = (float)mesh->triangles.at(triangleIndex).color[0] / 255;
+                vertexs->at(x + v * stride + 3) = (float) mesh->triangles.at(triangleIndex).color[1] / 255;
+                vertexs->at(x + v * stride + 4) = (float) mesh->triangles.at(triangleIndex).color[2] / 255;
             }
         
             triangleIndex++;
@@ -145,7 +145,7 @@ public:
 
     static const int stride = 5;
     static const int verticeSize = DATASIZE * stride * 3;
-    array<float, verticeSize> vertexs {};
+    array<float, verticeSize>* vertexs = new array<float, verticeSize>();
 
     void InitializeRender()
     {
@@ -157,8 +157,10 @@ public:
         //partitionData = ConvertPartitionData<float, partitionSize>(partitionStride);
 
         //Verted data
+        if (vertexs != nullptr)
+            delete[] vertexs;
         vertexs = ConvertVertexData<float, verticeSize>(stride);
-        CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
+        CreateBuffer((float(*)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
         //Bind the data for the element array buffer
         CreateVertexArray();
     }
@@ -168,12 +170,12 @@ public:
         CheckErrors();
 
         //Render triangle points and give buffer to element array
-        CreateBuffer((float(&)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
+        CreateBuffer((float(*)[verticeSize]) vertexs, GL_ARRAY_BUFFER);
         CreateVertexArray();
         glDrawArrays(GL_TRIANGLES, 0, DATASIZE * 6);
     }
 
-    MeshData mesh;
+    MeshData* mesh;
     bool colorGraph = false;
     bool colorHashTable = false;
     Graph graph;
@@ -182,7 +184,7 @@ public:
         //Get user Input (DON'T CHANGE)
         unordered_map<string, Color> options = { {"Red", Color(255, 0, 0)}, {"Blue", Color(0, 255, 0)}, {"Green", Color(0, 0, 255)},  
             {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)}, {"Orange", Color(255, 127, 0)},
-            {"BabyBlue", Color(137, 207, 240)}, {"Indigo", Color(75, 0, 130)}, {"Violet", Color(148, 0, 211)}, {"Lime", Color(128, 255, 0)}, 
+            {"BabyBlue", Color(137, 207, 240)}, {"Indigo", Color(75, 0, 130)}, {"Violet", Color(148, 0, 211)}, 
             {"Pink", Color(128, 255, 0)}, {"Rose", Color(235, 52, 100)}, {"Sand", Color(173, 145, 66)} };
         vector<Color> availableColors;
 
@@ -233,7 +235,7 @@ public:
                 {
                     colorGraph = true;
                     cout << "This might take 10 mins to setup" << endl;
-                    graph.setNeighbors(mesh.triangles);
+                    graph.setNeighbors(mesh->triangles);
                     break;
                 }
                 else if (input == "Hash Table")
@@ -298,8 +300,8 @@ public:
         {
             //colorize mesh
             availableColors = GetUserInput();
-            //availableColors = { Color(255, 0, 0), Color(0, 255, 0), Color(0, 0, 255), Color(255, 251, 0) };
 
+            colorGraph = true;
             cout << endl << "----Coloring graph---- " << endl;
 
             tookUserInput = true;
@@ -325,12 +327,12 @@ public:
         { 
             if (graph.doRealTime() == false)
             {
-                graph.colorMesh(mesh, availableColors);
+                graph.colorMesh(*mesh, availableColors);
                 colorGraph = false;
             }
             else
             {
-                graph.colorMesh(mesh, availableColors);
+                graph.colorMesh(*mesh, availableColors);
             }
            
             InitializeRender();
@@ -345,4 +347,11 @@ public:
 
         CheckErrors();
 	}
+
+    void DeleteResources()
+    {
+        delete[] vertexs;
+        mesh->DeleteResources();
+        delete mesh;
+    }
 };

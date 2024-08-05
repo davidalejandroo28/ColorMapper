@@ -8,7 +8,7 @@
 
 #include "../../Libraries/delaunator.hpp"
 
-#define DATASIZE 1000
+#define DATASIZE 100000
 
 struct Vertex
 {
@@ -25,11 +25,17 @@ struct Triangle
 
 struct MeshData
 {
-    array<Vertex, DATASIZE> vertices = {};
+    array<Vertex, DATASIZE>* verticesAlloc = new array<Vertex, DATASIZE>();
+    array<Vertex, DATASIZE>& vertices = *verticesAlloc;
     vector<Triangle> triangles;
 
     array<float, 2> xAxisRange = { -10, 10 };
     array<float, 2> yAxisRange = { -10, 10 };
+
+    void DeleteResources()
+    {
+        delete[] verticesAlloc;
+    }
 };
 
 struct Color {
@@ -212,32 +218,32 @@ void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZ
 }
 
 //Generate random data set
-MeshData GenerateRandomMesh()
+MeshData* GenerateRandomMesh()
 {
     //make a seed (this is randomized by time)
     std::srand(time(0));
 
-    MeshData mesh;
+    MeshData* mesh = new MeshData();
     float randomVal = 0;
 
     //place each vertex randomly on a 2d plane
-    for (Vertex& vertex : mesh.vertices)
+    for (Vertex& vertex : mesh->vertices)
     {
         randomVal = (float)rand() / RAND_MAX;
 
         //implementation of equation x or y = (distance of allowed bounds * random Value) + (left bound)
         //Proof: https://www.desmos.com/calculator/oat3knijz3
-        vertex.cordinates[0] = ((mesh.xAxisRange[1] - mesh.xAxisRange[0]) * randomVal) + mesh.xAxisRange[0];
+        vertex.cordinates[0] = ((mesh->xAxisRange[1] - mesh->xAxisRange[0]) * randomVal) + mesh->xAxisRange[0];
 
         randomVal = (float)rand() / RAND_MAX;
-        vertex.cordinates[1] = ((mesh.yAxisRange[1] - mesh.yAxisRange[0]) * randomVal) + mesh.yAxisRange[0];
+        vertex.cordinates[1] = ((mesh->yAxisRange[1] - mesh->yAxisRange[0]) * randomVal) + mesh->yAxisRange[0];
     }
 
     //setting camera bounds
-    mesh.vertices[0].cordinates = { mesh.xAxisRange[0], mesh.yAxisRange[0] };
-    mesh.vertices[1].cordinates = { mesh.xAxisRange[0], mesh.yAxisRange[1] };
-    mesh.vertices[2].cordinates = { mesh.xAxisRange[1], mesh.yAxisRange[0] };
-    mesh.vertices[3].cordinates = { mesh.xAxisRange[1], mesh.yAxisRange[1] };
+    mesh->vertices[0].cordinates = { mesh->xAxisRange[0], mesh->yAxisRange[0] };
+    mesh->vertices[1].cordinates = { mesh->xAxisRange[0], mesh->yAxisRange[1] };
+    mesh->vertices[2].cordinates = { mesh->xAxisRange[1], mesh->yAxisRange[0] };
+    mesh->vertices[3].cordinates = { mesh->xAxisRange[1], mesh->yAxisRange[1] };
 
     //Sort the mesh
     //SortVertexs(mesh);
@@ -248,10 +254,10 @@ MeshData GenerateRandomMesh()
     //Using a library to connect the points together b/c of time constraints
     vector<double> cordinates;
 
-    for (int x = 0; x < mesh.vertices.size(); x += 1)
+    for (int x = 0; x < mesh->vertices.size(); x += 1)
     {
-        cordinates.push_back(mesh.vertices[x].cordinates[0]);
-        cordinates.push_back(mesh.vertices[x].cordinates[1]);
+        cordinates.push_back(mesh->vertices[x].cordinates[0]);
+        cordinates.push_back(mesh->vertices[x].cordinates[1]);
     }
 
     delaunator::Delaunator del(cordinates);
@@ -265,7 +271,7 @@ MeshData GenerateRandomMesh()
         //array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
         //triangle.color = randomColor;
 
-        mesh.triangles.push_back(triangle);
+        mesh->triangles.push_back(triangle);
     }
 
     return mesh;

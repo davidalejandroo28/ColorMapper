@@ -58,7 +58,8 @@ int ShowWindow()
     SystemManager* sysManager = SystemManager::GetInstance();
     sysManager->PrintSystemInfomation();
 
-    vector<Observer<>*> scripts = { new RenderWindow };
+    RenderWindow* renderWind = new RenderWindow;
+    vector<Observer<>*> scripts = { renderWind };
 
     // create the window
     sf::ContextSettings windowSettings(24);
@@ -101,8 +102,12 @@ int ShowWindow()
     }
 
     // release resources...
+    renderWind->DeleteResources();
+
     DeleteScripts(scripts);
     sysManager->DeleteInstance();
+
+    
 
     return 0;
 }
