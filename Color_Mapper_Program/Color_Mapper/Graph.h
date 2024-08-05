@@ -41,7 +41,7 @@ public:
         }
     }
 
-//while(!checker)
+
      void coloringShapes(Triangle& T, bool& check, Color color_par){
 
         // check if neighbors have color_par
@@ -57,11 +57,8 @@ public:
             T.color[2] = color_par.RGB[2];
         }
     }
-
-
-
-
 };
+
 
 
 
