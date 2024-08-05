@@ -95,6 +95,9 @@ int main() {
     //GENERATE HASHTABLE
     HashTable HTable(mesh.vertices, mesh.triangles, palette);
 
+    Graph graph;
+    graph.setNeighbors(mesh.triangles);
+
 
     //START COLOR ASSIGNING
     bool colorSetSuccessful;
@@ -108,6 +111,9 @@ int main() {
             mesh.triangles[i].alterRBG(palette[pal_num]);
             //Have the same color value for the chart
             HTable.insertHash(mesh.triangles[i], palette[pal_num], colorSetSuccessful);
+
+            graph.coloringShapes(mesh.triangles[i], colorSetSuccessful, palette[pal_num]); // Graph Algorithm
+
         }
     }
     HTable.printTable();
