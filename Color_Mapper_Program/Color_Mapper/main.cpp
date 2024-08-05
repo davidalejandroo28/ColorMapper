@@ -4,6 +4,7 @@
 #include <iomanip>
 #include "Hashtable.h"
 //#include "Graph.h"
+#include "Delaunay_Triangulation.h"
 
 
 using namespace std;
@@ -48,13 +49,6 @@ void assignPalette(vector<Color>&palette, int option){
 int main() {
     srand(time(0));
 
-    //Test random
-/*
-    for (int i = 0; i < 100; i++) {
-        cout << (rand()%10) << endl;
-    }
-*/
-
     int option;
     vector<Color> palette;
     bool done = false;
@@ -82,7 +76,6 @@ int main() {
     }
 
     //GENERATE MESH
-
     MeshData meshHash;
     meshHash = GenerateRandomMesh();
     vector<double> cordinates;
@@ -91,34 +84,49 @@ int main() {
         cordinates.push_back(meshHash.vertices[x].coordinates[0]);
         cordinates.push_back(meshHash.vertices[x].coordinates[1]);
     }
-    //printMesh(meshHash);
-
     //GENERATE HASHTABLE
-    HashTable HTable(meshHash.vertices, meshHash.triangles, palette);
+    //cout << meshHash.vertices.size() << endl;
+    //cout << meshHash.triangles.size() << endl;
 
+    HashTable HTable(meshHash.vertices, meshHash.triangles, palette);
+    cout << "hi" << endl;
     //Graph graph;
     //graph.setNeighbors(mesh.triangles);
 
-    MeshData meshGraph = meshHash;
-
+    //MeshData meshGraph = meshHash;
     //START COLOR ASSIGNING
     bool colorSetHash = false;
     bool colorSetGraph = false;
     int pal_num;
+    /*
     cout << meshHash.triangles.size() << endl;
-    cout << meshHash.vertices.size() << endl;
+    for(int i = 0; i < meshHash.triangles.size(); i++){
+        cout << meshHash.triangles[i].color[0] << endl;
+        cout << meshHash.triangles[i].color[1] << endl;
+        cout << meshHash.triangles[i].color[2] << endl;
+    }
+*/
+    //cout << HTable.getTriangleList().size() << endl;
+    //cout << HTable.getVertexList().size() << endl;
     for(int i = 0; i < HTable.getTriangleList().size(); i++){
         colorSetHash = false;
         colorSetGraph = false;
         while(!colorSetHash && !colorSetGraph) {
             pal_num = (rand()%palette.size());
-            meshHash.triangles[i].alterRBG(palette[pal_num]);
+            alterRBG(meshHash.triangles[i],palette[pal_num]);
             //Have the same color value for the chart
             HTable.insertHash(meshHash.triangles[i], palette[pal_num], colorSetHash);
             //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
         }
     }
-    HTable.printTable();
+    /*
+    for(int i = 0; i < meshHash.triangles.size(); i++){
+        cout << meshHash.triangles[i].color[0] << endl;
+        cout << meshHash.triangles[i].color[1] << endl;
+        cout << meshHash.triangles[i].color[2] << endl;
+    }
+     */
+    //HTable.printTable();
 
     //All triangles have colors
     cout << "done" << endl;
