@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <iomanip>
 #include "Hashtable.h"
-
+#include "Graph.h"
 
 using namespace std;
 
