@@ -215,7 +215,7 @@ void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZ
 MeshData GenerateRandomMesh()
 {
     //make a seed (this is randomized by time)
-    std::srand(time(NULL));
+    std::srand(time(nullptr));
 
     MeshData mesh;
     float randomVal = 0;
