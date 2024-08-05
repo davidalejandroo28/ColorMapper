@@ -2,6 +2,7 @@
 // Created by DavidD on 7/29/2024.
 //
 #pragma once
+
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -10,7 +11,7 @@
 #include <random>
 #include <map>
 #include <queue>
-//#include "Hashtable.h"
+
 #include "Delaunay_Triangulation.h"
 
 using namespace std;

@@ -7,13 +7,13 @@
 #include <algorithm>
 #include <unordered_map>
 #include <iomanip>
-#include "Hashtable.h"
+
 #include "Delaunay_Triangulation.h"
+
+using namespace std;
 
 //Ask about not even vertices count
 //Ask about screen size
-
-using namespace std;
 
 struct Color{
     array<int,3> RBG;

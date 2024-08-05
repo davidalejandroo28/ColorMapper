@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include "../../Libraries/delaunator.hpp"
+
 #define DATASIZE 1000
 
 struct Vertex
@@ -15,14 +17,14 @@ struct Vertex
 
 struct Triangle
 {
-    array<int, 3> vertices; //<== points to each vertex index in the vertice array
+    array<int, 3> vertices = {}; //<== points to each vertex index in the vertice array
     array<int, 3> color = { 60, 60, 60 }; //color range is 0 to 255 and R G B
     vector<Triangle*> neighbors; //For algorithm using Graph Adjacency list 
 };
 
 struct MeshData
 {
-    array<Vertex, DATASIZE> vertices;
+    array<Vertex, DATASIZE> vertices = {};
     vector<Triangle> triangles;
 
     array<float, 2> xAxisRange = { -10, 10 };
@@ -214,10 +216,128 @@ MeshData GenerateRandomMesh()
     //merge the mesh together
     //MergeMesh(mesh);
 
+    //Using a library to connect the points together b/c of time constraints
+    vector<double> cordinates;
+
+    for (int x = 0; x < mesh.vertices.size(); x += 1)
+    {
+        cordinates.push_back(mesh.vertices[x].cordinates[0]);
+        cordinates.push_back(mesh.vertices[x].cordinates[1]);
+    }
+
+    delaunator::Delaunator del(cordinates);
+    for (int tri = 0; tri < del.triangles.size(); tri += 3)
+    {
+        Triangle triangle;
+        triangle.vertices[0] = del.triangles[tri];
+        triangle.vertices[1] = del.triangles[tri + 1];
+        triangle.vertices[2] = (del.triangles[tri + 2]);
+
+        //array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
+        //triangle.color = randomColor;
+
+        mesh.triangles.push_back(triangle);
+    }
+
     return mesh;
 }
 
+/*
+//returns 2 points of a line
+    array<float, 4> ReturnLinePoint(Vertex parentVert, Vertex childVert, bool useAxis)
+    {
+        if (useAxis)
+        {
+            //X-Axis
+            if (parentVert.cordinates[1] > childVert.cordinates[1])
+            {
+                //create the topmost  point                                 //create bottom intersection point
+                return { childVert.cordinates[0], (float) mesh.yAxisRange[1], childVert.cordinates[0], parentVert.cordinates[1] };
+            }
+            else
+            {
+                return { childVert.cordinates[0], parentVert.cordinates[1], childVert.cordinates[0], (float)mesh.yAxisRange[0] };
+            }
+        }
+        else
+        {
+            //Y-Axis
+            //if parent is right of child
+            if (parentVert.cordinates[0] > childVert.cordinates[0])
+            {
+                //create the leftmost point                                 //create right intersection point
+                return { (float)mesh.xAxisRange[0], childVert.cordinates[1], parentVert.cordinates[0], childVert.cordinates[1] };
+            }
+            else
+            {
+                return { parentVert.cordinates[0], childVert.cordinates[1], (float)mesh.xAxisRange[1], childVert.cordinates[1] };
+            }
+        }
+    }
 
+    void levelOrderTraversal(vector<array<float, 4>>& pointVals, int parentIndex, int midIndex, int boundryIndex, bool useAxis = 0)
+    {
+        pointVals.push_back(ReturnLinePoint(mesh.vertices.at(parentIndex), mesh.vertices.at(midIndex), useAxis));
+
+        if (abs(parentIndex - midIndex) == 1 || abs(boundryIndex - midIndex) == 1)
+        {
+            return;
+        }
+
+        levelOrderTraversal(pointVals, midIndex, ReturnMidIndex(parentIndex, midIndex), boundryIndex, !useAxis);
+        levelOrderTraversal(pointVals, midIndex, ReturnMidIndex(boundryIndex, midIndex), boundryIndex, !useAxis);
+    }
+
+    template<typename type, int dataSize>
+    array<type, dataSize> ConvertPartitionData(int stride)
+    {
+        //Go through the KD tree
+        array<type, dataSize> partitionData;
+        vector<array<float, 4>> lines;
+
+        bool useAxis = 1;
+        int midIndex = ReturnMidIndex(0, mesh.vertices.size());
+        int midLeftIndex = ReturnMidIndex(0, midIndex);
+        int midRightIndex = ReturnMidIndex(midIndex, mesh.vertices.size());
+
+        //ROOT
+        lines.push_back({mesh.vertices[midIndex].cordinates[0], (float) mesh.yAxisRange[0], mesh.vertices[midIndex].cordinates[0],(float)mesh.yAxisRange[1]});
+
+        levelOrderTraversal(lines, midIndex, midRightIndex, mesh.vertices.size(), useAxis);
+        levelOrderTraversal(lines, midIndex, midLeftIndex, 0, useAxis);
+
+        int line = 0;
+        for (int x = 0; x <= dataSize - stride; x += stride)
+        {
+            if (line >= lines.size())
+            {
+                break;
+            }
+
+            partitionData[x] = lines.at(line)[0] / (float)(abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
+            partitionData[x + 1] = lines.at(line)[1] / (float)(abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
+            partitionData[x + 2] = 0.1f; //Z
+
+            //color
+            partitionData[x + 3] = 1;
+            partitionData[x + 4] = 1;
+            partitionData[x + 5] = 1;
+
+            partitionData[x + 6] = lines.at(line)[2] / (float)(abs(mesh.xAxisRange[0]) + abs(mesh.xAxisRange[1])) * 2;
+            partitionData[x + 7] = lines.at(line)[3] / (float)(abs(mesh.yAxisRange[0]) + abs(mesh.yAxisRange[1])) * 2;
+            partitionData[x + 8] = 0.1f; //Z
+
+            //color
+            partitionData[x + 9] = 1;
+            partitionData[x + 10] = 1;
+            partitionData[x + 11] = 1;
+
+            line++;
+        }
+
+        return partitionData;
+    }
+    */
 
 
 
