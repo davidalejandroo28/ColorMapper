@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 #include <SFML/System.hpp>
-
+#include <unordered_map>
 
 #include <glm/glm.hpp>
 
@@ -173,37 +173,84 @@ public:
 
     MeshData mesh;
 
+    vector<Color> GetUserInput()
+    {
+        //Get user Input
+        unordered_map<string, Color> options = { {"Red", Color(255, 0, 0)}, {"Blue", Color(0, 255, 0)}, {"Green", Color(0, 0, 255)},  
+                                                 {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)} };
+        vector<Color> availableColors;
+
+        cout << "What colors do you want?" << endl << "R: ";
+        cout << "Options are: (say RENDER to render the window)" << endl;
+        for (auto names = options.begin(); names != options.end(); names++)
+        {
+            cout << names->first << ", " << flush;
+        }
+
+        cout << endl << "Now input your color: " << endl;
+
+        //TODO add error handling
+        while (true)
+        {
+            string input;
+            try
+            {
+                cin >> input;
+
+                if (input == "RENDER")
+                {
+                    break;
+                }
+
+                availableColors.push_back(options.at(input));
+            }
+            catch (...)
+            {
+                cout << "Error, you might've mispelled a word" << endl << endl;
+            }
+        }
+
+        return availableColors;
+    }
+
+    Graph graph;
 	void Start()
 	{
-        //Get user Input
-
         //generate a random mesh to colorize
         cout << "----Generating mesh----" << endl;
 
         mesh = GenerateRandomMesh();
-
-        //colorize mesh
-        cout << endl << "----Coloring graph---- " << endl;
-
-        Graph graph;
-        Color white(255, 255, 255);
+        
         graph.setNeighbors(mesh.triangles);
-        vector<Color> availableColors = { Color(255, 255, 255), Color(0, 255, 255), Color(0, 0, 255), Color(55, 0, 255), Color(24, 222, 45), Color(234, 4, 242) };
-        if (graph.colorMesh(mesh, availableColors))
-        {
-            cout << "Successful!" << endl;
-        }
-        else
-        {
-            cout << "Unsuccessful!" << endl;
-        }
         
         cout << endl << "----Rendering graph----" << endl;
         InitializeRender();
+        Render();
 	}
 
+    bool tookUserInput = false;
 	void Update()
 	{
+        if (!tookUserInput)
+        {
+            //colorize mesh
+
+            vector<Color> availableColors = GetUserInput();
+         
+            cout << endl << "----Coloring graph---- " << endl;
+            if (graph.colorMesh(mesh, availableColors))
+            {
+                cout << "Successful!" << endl;
+            }
+            else
+            {
+                cout << "Unsuccessful!" << endl;
+            }
+
+            tookUserInput = true;
+            InitializeRender();
+        }
+        
         Render();
 
         CheckErrors();

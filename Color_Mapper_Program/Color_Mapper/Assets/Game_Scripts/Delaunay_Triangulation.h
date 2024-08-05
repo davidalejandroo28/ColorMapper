@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <algorithm>
 #include <unordered_map>
+#include <time.h>
 
 #include "../../Libraries/delaunator.hpp"
 
@@ -185,8 +186,8 @@ void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZ
 //Generate random data set
 MeshData GenerateRandomMesh()
 {
-    //make a seed (this should somehow be randomized)
-    std::srand(1);
+    //make a seed (this is randomized by time)
+    std::srand(time(NULL));
 
     MeshData mesh;
     float randomVal = 0;
