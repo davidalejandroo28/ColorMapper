@@ -179,6 +179,7 @@ public:
     bool colorGraph = false;
     bool colorHashTable = false;
     Graph graph;
+
     vector<Color> GetUserInput()
     {
         //Get user Input (DON'T CHANGE)
@@ -186,6 +187,7 @@ public:
             {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)}, {"Orange", Color(255, 127, 0)},
             {"BabyBlue", Color(137, 207, 240)}, {"Indigo", Color(75, 0, 130)}, {"Violet", Color(148, 0, 211)}, 
             {"Pink", Color(128, 255, 0)}, {"Rose", Color(235, 52, 100)}, {"Sand", Color(173, 145, 66)} };
+        //(255, 192, 203) <== pink!
         vector<Color> availableColors;
 
 
@@ -222,7 +224,7 @@ public:
         }
 
         cout << endl << "Which algorithm do you want to run?" << endl;
-        cout << "Graph or Hash Table Colorize Function?" << endl;
+        cout << "Graph or Hash_Table Colorize Function?" << endl;
 
         while (true)
         {
@@ -238,10 +240,11 @@ public:
                     graph.setNeighbors(mesh->triangles);
                     break;
                 }
-                else if (input == "Hash Table")
+                else if (input == "Hash_Table")
                 {
                     colorHashTable = true;
                     cout << "This might take 10 mins" << endl;
+                    ColorizeHTable(*mesh, availableColors);
                     break;
                 }
             }
@@ -301,7 +304,6 @@ public:
             //colorize mesh
             availableColors = GetUserInput();
 
-            colorGraph = true;
             cout << endl << "----Coloring graph---- " << endl;
 
             tookUserInput = true;

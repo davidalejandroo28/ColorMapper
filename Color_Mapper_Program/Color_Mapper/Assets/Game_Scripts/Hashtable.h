@@ -13,6 +13,7 @@ using namespace std;
 
 //Ask about not even vertices count
 //Ask about screen size
+
 struct HashTriangle
 {
     array<int, 3> vertices = {}; //<== points to each vertex index in the vertice array
@@ -33,7 +34,7 @@ struct HashTriangle
 class HashTable{
 private:
     //buckets
-    int hashGroups;
+    int hashGroups = 13;
     vector<list<HashTriangle>> table;
     array<Vertex,DATASIZE> vertex_list;
     vector<Triangle> triangles;
@@ -41,8 +42,7 @@ private:
 
 public:
     HashTable(array<Vertex,DATASIZE> new_list,vector<Triangle> new_triangles,vector<Color> colors){
-        hashGroups = colors.size();
-        table.resize(colors.size());
+        table.resize(13);
         vertex_list = new_list;
         triangles = new_triangles;
         color_list = colors;
@@ -56,6 +56,9 @@ public:
     void removeItem(HashTriangle key);
     void printTable();
 };
+
+
+
 
 void alterRGB(Triangle &new_t,Color new_color){
     new_t.color[0] = new_color.RGB[0];
@@ -80,7 +83,72 @@ bool HashTriangle::checkNeighbors(Triangle newShape, array<Vertex,DATASIZE> vert
 }
 
 int HashTable::hashFunction(int key) {
-    return key % hashGroups;
+    //Cyan,Magenta,BabyBlue
+    if(to_string(key).length() == 4){
+        //Baby Blue
+        if(to_string(key)[to_string(key).size()-1] == '1'){
+            return 7;
+        }
+        else{
+            //Cyan
+            if(to_string(key)[1] == '2'){
+                return 4;
+            }
+            //Magenta
+            else{
+                return 5;
+            }}}
+    //Red,Blue,Green,Yellow,Orange,Indigo,Violet,Pink,Rose,Sand
+    else if(to_string(key).length() == 3){
+        //Red,Blue,Indigo,Orange
+        if(key < 600){
+            //Red
+            if((key/255) == 1){
+                return 0;
+            }
+            //Blue
+            else if((key/255) == 2){
+                return 1;
+            }
+            else{
+                //Indigo
+                if(key < 500){
+                    return 8;
+                }
+                //Orange
+                else{
+                    return 6;
+                }}}
+        //Green,Yellow ,Violet,Pink,Rose,Sand
+        else if(key > 600){
+            //Green,Yellow,Violet
+            if(key > 700 ){
+                //Green
+                if((key /3) == 255){
+                    return 2;
+                }
+                //Yellow
+                if(to_string(key)[1] == '5') {
+                    return 3;
+                }
+                //Violet
+                else{
+                    return 9;
+}}
+            //Pink,Rose,Sand
+            else if(key < 700){
+                //Pink,Rose
+                if(key < 650){
+                    if(to_string(key)[2] == '8'){
+                        return 10;
+                    }
+                    else{
+                        return 11;
+                    }}
+                //Sand
+                else{
+                    return 12;
+                }}}}
 }
 
 vector<Triangle> HashTable::getTriangleList() {
@@ -105,18 +173,13 @@ void HashTable::insertHash(Triangle &shape, Color try_color, bool &complete) {
         auto iter = begin(index);
         for (; iter != end(index); iter++) {
             if (iter->checkNeighbors(shape, vertex_list)) {
-                //for (int j = 0; j < iter->second.size(); j++) {
-                //if (iter->second[j].checkNeighbors(shape, vertex_list)) {
-                //break;
-                //}
-                //}
                 break;
             }
         }
     }
 }
 
-
+//Remove
 void HashTable::removeItem(HashTriangle shape) {
     int hashvalue = hashFunction(shape.RGBvalue);
     list<HashTriangle> index = table[hashvalue];
@@ -146,4 +209,25 @@ void HashTable::printTable() {
             }
         }
     }
+}
+
+
+bool ColorizeHTable(MeshData &mesh, vector<Color> availableColors){
+    srand(time(0));
+    if(availableColors.size() < 4){
+        return false;
+    }
+    HashTable HTable(mesh.vertices, mesh.triangles, availableColors);
+    bool colorSetHash = false;
+    int color_num;
+    for(int i = 0; i < HTable.getTriangleList().size(); i++){
+        colorSetHash = false;
+
+        while(!colorSetHash) {
+            color_num = (rand()%availableColors.size());
+            alterRGB(mesh.triangles[i],availableColors[color_num]);
+            HTable.insertHash(mesh.triangles[i], availableColors[color_num], colorSetHash);
+        }
+    }
+    return true;
 }
