@@ -182,6 +182,9 @@ public:
                                                  {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)} };
         vector<Color> availableColors;
 
+
+        cout << "Project 3: Mapping with Colors" << endl;
+        cout << "Menu Options:" << endl;
         cout << "What colors do you want?" << endl << "R: ";
         cout << "Options are: (say RENDER to render the window)" << endl;
         for (auto names = options.begin(); names != options.end(); names++)
@@ -223,8 +226,9 @@ public:
 
         mesh = GenerateRandomMesh();
         
-        graph.setNeighbors(mesh.triangles);
-        graph.enableRealTime();
+        //Graph
+        //graph.setNeighbors(mesh.triangles);
+        //graph.enableRealTime();
         
         cout << endl << "----Rendering graph----" << endl;
         InitializeRender();
@@ -233,19 +237,48 @@ public:
 
     bool tookUserInput = false;
     bool colorGraph = false;
+    bool colorHashTable = false;
     vector<Color> availableColors;
 	void Update()
 	{
         if (!tookUserInput)
         {
             //colorize mesh
-
             availableColors = GetUserInput();
-         
+            //availableColors = { Color(255, 0, 0), Color(0, 255, 0), Color(0, 0, 255), Color(255, 251, 0) };
+
             cout << endl << "----Coloring graph---- " << endl;
 
             tookUserInput = true;
-            colorGraph = true;
+
+            HashTable HTable(mesh.vertices, mesh.triangles, availableColors);
+
+
+            colorHashTable = true;
+            int pal_num;
+            bool colorSetHash;
+            for (int i = 0; i < HTable.getTriangleList().size(); i++) {
+                colorSetHash = false;
+                while (!colorSetHash) {
+                    pal_num = (rand() % availableColors.size());
+                    alterRGB(mesh.triangles[i], availableColors[pal_num]);
+                    //Have the same color value for the chart
+                    HTable.insertHash(mesh.triangles[i], availableColors[pal_num], colorSetHash);
+                    //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
+                }
+            }
+
+            /*for (int i = 0; i < mesh.triangles.size(); i++) {
+                cout << endl;
+                cout << mesh.triangles[i].color[0] << endl;
+                cout << mesh.triangles[i].color[1] << endl;
+                cout << mesh.triangles[i].color[2] << endl;
+            }*/
+        
+            //graph stuff
+            //colorGraph = true;
+
+
             InitializeRender();
         }
 
@@ -254,6 +287,11 @@ public:
             graph.colorMesh(mesh, availableColors);
             InitializeRender();
         }
+
+        //if (colorHashTable)
+        //{
+        //    //Color the hash table
+        //}
 
         Render();
 

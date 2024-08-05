@@ -112,7 +112,6 @@ public:
                     {
                         usableColors.push(availableColors.at(color));
                     }
-
                 }
 
                 if (usableColors.size() > 0)
