@@ -8,21 +8,13 @@
 #include <unordered_map>
 #include <iomanip>
 #include "Delaunay_Triangulation.h"
+#include "Graph.H"
 
 using namespace std;
 
 //Ask about not even vertices count
 //Ask about screen size
 
-
-struct Color{
-    array<int,3> RGB;
-    Color(int in_R, int in_G, int in_B){
-        RGB[0] = in_R;
-        RGB[1] = in_G;
-        RGB[2] = in_B;
-    }
-};
 
 
 struct HashTriangle
