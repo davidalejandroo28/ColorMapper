@@ -33,8 +33,8 @@ struct HashTriangle
 
     HashTriangle(Triangle shape){
         color[0] = shape.color[0];
-        color[0] = shape.color[0];
-        color[0] = shape.color[0];
+        color[1] = shape.color[1];
+        color[2] = shape.color[2];
         RGBvalue = color[0] + (color[1] * 2) + (color[2] * 3);
         vertices = shape.vertices;
     }
