@@ -43,19 +43,38 @@ public:
     }
 
 
-     void coloringShapes(Triangle& T, bool& check, Color color_par){
+    void coloringShapes(Triangle& T, bool& check, Color color_par){
 
         // check if neighbors have color_par
-        for(int i = 0; i < T.neighbors.size(); i++){
-            if(T.neighbors[i]->color == T.color){
-                return; // just return because a neighbor has the same color as Triangle parameter
-            }
+        if(T.color.empty()){
+            T.color[0] = color_par.RBG[0];
+            T.color[1] = color_par.RBG[1];
+            T.color[2] = color_par.RBG[2];
         }
+        
+        for(int i = 0; i < T.neighbors.size(); i++){
+            int count = 0; 
+            if(T.neighbors[i]->color[0] == T.color[0]){
+                count++;
+            }
+            if(T.neighbors[i]->color[1] == T.color[1]){
+                count++;
+            }
+            if(T.neighbors[i]->color[2] == T.color[2]){
+                count++;
+            }
+            if(count == 3){
+                return;
+            }
+            
+        }
+
+
         check = true; // if neighbors don't have color check = true
         for(int j = 0; j < 3; j++){
-            T.color[0] = color_par.RGB[0];
-            T.color[1] = color_par.RGB[1];
-            T.color[2] = color_par.RGB[2];
+            T.color[0] = color_par.RBG[0];
+            T.color[1] = color_par.RBG[1];
+            T.color[2] = color_par.RBG[2];
         }
     }
 };
