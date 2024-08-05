@@ -12,6 +12,7 @@
 #include "Delaunay_Triangulation.h"
 #include "Graph.h"
 
+
 using namespace std;
 class RenderWindow: public RuntimeScript
 {
@@ -222,6 +223,7 @@ public:
         mesh = GenerateRandomMesh();
         
         graph.setNeighbors(mesh.triangles);
+        graph.enableRealTime();
         
         cout << endl << "----Rendering graph----" << endl;
         InitializeRender();
@@ -229,28 +231,29 @@ public:
 	}
 
     bool tookUserInput = false;
+    bool colorGraph = false;
+    vector<Color> availableColors;
 	void Update()
 	{
         if (!tookUserInput)
         {
             //colorize mesh
 
-            vector<Color> availableColors = GetUserInput();
+            availableColors = GetUserInput();
          
             cout << endl << "----Coloring graph---- " << endl;
-            if (graph.colorMesh(mesh, availableColors))
-            {
-                cout << "Successful!" << endl;
-            }
-            else
-            {
-                cout << "Unsuccessful!" << endl;
-            }
 
             tookUserInput = true;
+            colorGraph = true;
             InitializeRender();
         }
-        
+
+        if (colorGraph)
+        {
+            graph.colorMesh(mesh, availableColors);
+            InitializeRender();
+        }
+
         Render();
 
         CheckErrors();
