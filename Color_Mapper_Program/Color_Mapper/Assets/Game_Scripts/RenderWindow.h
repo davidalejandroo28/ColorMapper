@@ -174,19 +174,23 @@ public:
     }
 
     MeshData mesh;
-
+    bool colorGraph = false;
+    bool colorHashTable = false;
+    Graph graph;
     vector<Color> GetUserInput()
     {
-        //Get user Input
+        //Get user Input (DON'T CHANGE)
         unordered_map<string, Color> options = { {"Red", Color(255, 0, 0)}, {"Blue", Color(0, 255, 0)}, {"Green", Color(0, 0, 255)},  
-                                                 {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)} };
+            {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)}, {"Orange", Color(255, 127, 0)},
+            {"BabyBlue", Color(137, 207, 240)}, {"Indigo", Color(75, 0, 130)}, {"Violet", Color(148, 0, 211)}, {"Lime", Color(128, 255, 0)}, 
+            {"Pink", Color(128, 255, 0)}, {"Rose", Color(235, 52, 100)}, {"Sand", Color(173, 145, 66)} };
         vector<Color> availableColors;
 
 
         cout << "Project 3: Mapping with Colors" << endl;
         cout << "Menu Options:" << endl;
-        cout << "What colors do you want?" << endl << "R: ";
-        cout << "Options are: (say RENDER to render the window)" << endl;
+        cout << "What colors do you want?" << endl;
+        cout << "Options are: (say DONE to move onto the next step)" << endl;
         for (auto names = options.begin(); names != options.end(); names++)
         {
             cout << names->first << ", " << flush;
@@ -202,7 +206,7 @@ public:
             {
                 cin >> input;
 
-                if (input == "RENDER")
+                if (input == "DONE")
                 {
                     break;
                 }
@@ -215,10 +219,65 @@ public:
             }
         }
 
+        cout << endl << "Which algorithm do you want to run?" << endl;
+        cout << "Graph or Hash Table Colorize Function?" << endl;
+
+        while (true)
+        {
+            string input;
+            try
+            {
+                cin >> input;
+
+                if (input == "Graph")
+                {
+                    colorGraph = true;
+                    cout << "This might take 10 mins to setup" << endl;
+                    graph.setNeighbors(mesh.triangles);
+                    break;
+                }
+                else if (input == "Hash Table")
+                {
+                    colorHashTable = true;
+                    cout << "This might take 10 mins" << endl;
+                    break;
+                }
+            }
+            catch (...)
+            {
+                cout << "Error, you might've mispelled a word" << endl << endl;
+            }
+        }
+
+        cout << "Would you like do view the algorithm in real time? (Yes or No)" << endl;
+        while (true)
+        {
+            string input;
+            try
+            {
+                cin >> input;
+
+                if (input == "Yes")
+                {
+                    graph.enableRealTime();
+                    break;
+                }
+                else if (input == "No")
+                {
+                    graph.disableRealTime();
+                    break;
+                }
+            }
+            catch (...)
+            {
+                cout << "Error, you might've mispelled a word" << endl << endl;
+            }
+        }
+
         return availableColors;
     }
 
-    Graph graph;
+    
 	void Start()
 	{
         //generate a random mesh to colorize
@@ -226,18 +285,12 @@ public:
 
         mesh = GenerateRandomMesh();
         
-        //Graph
-        //graph.setNeighbors(mesh.triangles);
-        //graph.enableRealTime();
-        
         cout << endl << "----Rendering graph----" << endl;
         InitializeRender();
         Render();
 	}
 
     bool tookUserInput = false;
-    bool colorGraph = false;
-    bool colorHashTable = false;
     vector<Color> availableColors;
 	void Update()
 	{
@@ -251,47 +304,42 @@ public:
 
             tookUserInput = true;
 
-            HashTable HTable(mesh.vertices, mesh.triangles, availableColors);
-
-
-            colorHashTable = true;
-            int pal_num;
-            bool colorSetHash;
-            for (int i = 0; i < HTable.getTriangleList().size(); i++) {
-                colorSetHash = false;
-                while (!colorSetHash) {
-                    pal_num = (rand() % availableColors.size());
-                    alterRGB(mesh.triangles[i], availableColors[pal_num]);
-                    //Have the same color value for the chart
-                    HTable.insertHash(mesh.triangles[i], availableColors[pal_num], colorSetHash);
-                    //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
-                }
-            }
-
-            /*for (int i = 0; i < mesh.triangles.size(); i++) {
-                cout << endl;
-                cout << mesh.triangles[i].color[0] << endl;
-                cout << mesh.triangles[i].color[1] << endl;
-                cout << mesh.triangles[i].color[2] << endl;
-            }*/
-        
-            //graph stuff
-            //colorGraph = true;
-
+            //bool colorSetHash = false;
+            //int pal_num = 0;
+            //HashTable HTable(mesh.vertices, mesh.triangles, availableColors);
+            //for (int i = 0; i < HTable.getTriangleList().size(); i++) {
+            //    colorSetHash = false;
+            //    while (!colorSetHash) {
+            //        pal_num = (rand() % availableColors.size());
+            //        alterRGB(mesh.triangles[i], availableColors[pal_num]);
+            //        //Have the same color value for the chart
+            //        HTable.insertHash(mesh.triangles[i], availableColors[pal_num], colorSetHash);
+            //        //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
+            //    }
+            //}
 
             InitializeRender();
         }
 
         if (colorGraph)
-        {
-            graph.colorMesh(mesh, availableColors);
+        { 
+            if (graph.doRealTime() == false)
+            {
+                graph.colorMesh(mesh, availableColors);
+                colorGraph = false;
+            }
+            else
+            {
+                graph.colorMesh(mesh, availableColors);
+            }
+           
             InitializeRender();
         }
 
-        //if (colorHashTable)
-        //{
-        //    //Color the hash table
-        //}
+        if (colorHashTable)
+        {
+            //Color the hash table
+        }
 
         Render();
 

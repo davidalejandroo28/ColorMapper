@@ -20,10 +20,21 @@ class Graph {
     bool realTime = false;
     int triIndex = -1;
 public:
+    void disableRealTime()
+    {
+        this->realTime = false;
+        triIndex = -1;
+    }
+
     void enableRealTime()
     {
         this->realTime = true;
         triIndex = 0;
+    }
+
+    bool doRealTime()
+    {
+        return realTime;
     }
 
     void setNeighbors(vector<Triangle>& shapes) {
