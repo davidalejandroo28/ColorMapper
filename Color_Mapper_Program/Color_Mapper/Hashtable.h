@@ -54,7 +54,7 @@ private:
 
 public:
     HashTable(array<Vertex,DATASIZE> new_list,vector<Triangle> new_triangles,vector<Color> colors){
-        table.resize(colors.size());
+        table.resize(hashGroups);
         vertex_list = new_list;
         triangles = new_triangles;
         color_list = colors;
@@ -80,14 +80,19 @@ void alterRGB(Triangle &new_t,Color new_color){
 
 bool HashTriangle::checkNeighbors(Triangle newShape, array<Vertex,DATASIZE> vertex_location) {
     int cnt_same_vert = 0;
-    for(int i = 0; i < sizeof(newShape.vertices); i ++){
-        for(int j = 0; j < sizeof(newShape.vertices); j++) {
+    //cout << "OldTri: " << this->vertices[0] << " " << vertices[1] << " " << vertices[2] << endl;
+    //cout << "NewTri: " << newShape.vertices[0] << " " << newShape.vertices[1] << " " << newShape.vertices[2] << endl;
+    for(int i = 0; i < 3; i ++){
+        for(int j = 0; j < 3; j++) {
+
             if (vertex_location[vertices[i]].coordinates == vertex_location[newShape.vertices[j]].coordinates){
+                //cout << "add" << endl;
                 cnt_same_vert += 1;
                 break;
             }
         }
         if(cnt_same_vert >= 2){
+            //cout << "count: " << cnt_same_vert << endl;
             return true;
         }
     }
@@ -115,7 +120,7 @@ int HashTable::hashFunction(int key) {
         //Red,Blue,Indigo,Orange
         if(key < 600){
             //Red
-            if((key/255) == 1){
+            if(key == 255){
                 return 0;
             }
             //Blue
@@ -174,21 +179,32 @@ array<Vertex,DATASIZE> HashTable::getVertexList(){
 //Check if neighbors, and if so change color until colors are alright
 void HashTable::insertHash(Triangle &shape, Color try_color, bool &complete) {
     HashTriangle newT(shape);
+    //cout << "hi2" << endl;
     int hashvalue = hashFunction(newT.RGBvalue);
-    //list<pair<int, vector<Triangle>>> &index = table[hashvalue];
     list<HashTriangle> index = table[hashvalue];
-    if(index.empty()) {
-        index.push_back(shape);
+    //cout << endl;
+    //cout << "Hash: " << hashvalue << endl;
+    //cout << "color: " << newT.RGBvalue << endl;
+    //cout << "sizeBA: " << table[hashvalue].size() << endl;
+    if(table[hashvalue].empty()) {
+        //cout << "here" << endl;
+        table[hashvalue].emplace_back(newT);
         complete = true;
     }
     else{
         auto iter = begin(index);
         for (; iter != end(index); iter++) {
+            //cout << "RGB:" << iter->RGBvalue << endl;
             if (iter->checkNeighbors(shape, vertex_list)) {
-                break;
+                //cout << "Neighbors->Leave" << endl;
+                //cout << endl;
+                return;
             }
         }
+        table[hashvalue].emplace_back(newT);
+        complete = true;
     }
+    //cout << "newSize: " << table[hashvalue].size() << endl;
 }
 
 //Remove
@@ -234,13 +250,11 @@ bool ColorizeHTable(MeshData &mesh, vector<Color> availableColors){
     int color_num;
     for(int i = 0; i < HTable.getTriangleList().size(); i++){
         colorSetHash = false;
-        cout << "hi1" << endl;
         while(!colorSetHash) {
             color_num = (rand()%availableColors.size());
             alterRGB(mesh.triangles[i],availableColors[color_num]);
             HTable.insertHash(mesh.triangles[i], availableColors[color_num], colorSetHash);
         }
-        cout << "hi2" << endl;
     }
     return true;
 }
