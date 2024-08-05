@@ -16,11 +16,11 @@ using namespace std;
 
 
 struct Color{
-    array<int,3> RBG;
+    array<int,3> RGB;
     Color(int in_R, int in_G, int in_B){
-        RBG[0] = in_R;
-        RBG[1] = in_G;
-        RBG[2] = in_B;
+        RGB[0] = in_R;
+        RGB[1] = in_G;
+        RGB[2] = in_B;
     }
 };
 
@@ -73,9 +73,9 @@ public:
 
 
 void alterRBG(Triangle &new_t,Color new_color){
-    new_t.color[0] = new_color.RBG[0];
-    new_t.color[1] = new_color.RBG[1];
-    new_t.color[2] = new_color.RBG[2];
+    new_t.color[0] = new_color.RGB[0];
+    new_t.color[1] = new_color.RGB[1];
+    new_t.color[2] = new_color.RGB[2];
 }
 
 bool HashTriangle::checkNeighbors(Triangle newShape, array<Vertex,DATASIZE> vertex_location) {

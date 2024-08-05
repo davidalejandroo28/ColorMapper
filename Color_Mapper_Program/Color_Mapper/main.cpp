@@ -119,13 +119,14 @@ int main() {
             //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
         }
     }
-
+/*
     for(int i = 0; i < meshHash.triangles.size(); i++){
         cout << endl;
         cout << meshHash.triangles[i].color[0] << endl;
         cout << meshHash.triangles[i].color[1] << endl;
         cout << meshHash.triangles[i].color[2] << endl;
     }
+    */
 
     //HTable.printTable();
 
