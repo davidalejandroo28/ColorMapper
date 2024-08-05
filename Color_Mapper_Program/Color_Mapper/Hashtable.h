@@ -9,7 +9,7 @@
 #include <iomanip>
 #include "Hashtable.h"
 
-#define DATASIZE 1000
+#define DATASIZE 100
 
 using namespace std;
 
@@ -44,14 +44,15 @@ class HashTable{
 private:
     //buckets
     int hashGroups;
-    list<pair<int,vector<Triangle>>> *table;
+    //list<pair<int,vector<Triangle>>> *table;
+    vector<list<Triangle>> table;
     array<Vertex,DATASIZE> vertex_list;
     vector<Triangle> triangles;
     vector<Color> color_list;
 public:
     HashTable(array<Vertex,DATASIZE> new_list,vector<Triangle> new_triangles,vector<Color> colors){
         hashGroups = colors.size();
-        table = new list<pair<int,vector<Triangle>>>[hashGroups];
+        table.resize(colors.size());
         vertex_list = new_list;
         triangles = new_triangles;
         color_list = colors;
@@ -61,8 +62,8 @@ public:
     vector<Triangle> getTriangleList();
     array<Vertex,DATASIZE> getVertexList();
     int hashFunction(int key);
-    void insertHash(int key, Triangle &shape, Color in_color);
-    void removeItem(int key);
+    void insertHash(Triangle &shape, Color in_color, bool &complete);
+    void removeItem(Triangle key);
     void printTable();
 };
 

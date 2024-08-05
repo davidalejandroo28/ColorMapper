@@ -8,7 +8,7 @@
 
 using namespace std;
 
-#define DATASIZE 1000
+#define DATASIZE 100
 
 
 
@@ -20,11 +20,16 @@ void Triangle::alterRBG(Color new_color){
 }
 
 bool Triangle::checkNeighbors(Triangle newShape, array<Vertex,DATASIZE> vertex_location) {
+    int cnt_same_vert = 0;
     for(int i = 0; i < sizeof(newShape.vertices); i ++){
         for(int j = 0; j < sizeof(newShape.vertices); j++) {
             if (vertex_location[vertices[i]].coordinates == vertex_location[newShape.vertices[j]].coordinates){
-                return true;
+                cnt_same_vert += 1;
+                break;
             }
+        }
+        if(cnt_same_vert >= 2){
+            return true;
         }
     }
     return false;
@@ -39,42 +44,38 @@ vector<Triangle> HashTable::getTriangleList() {
 }
 
 //Check if neighbors, and if so change color until colors are alright
-void HashTable::insertHash(int key, Triangle &shape, Color try_color) {
-    int hashvalue = hashFunction(key);
-    list<pair<int, vector<Triangle>>> &index = table[hashvalue];
-    auto iter = begin(index);
-    bool existing = false;
-    bool sameColors = true;
-    for (; iter != end(index); iter++) {
-        if (iter->first == key) {
-            for (int j = 0; j < iter->second.size(); j++) {
-                if(iter->second[j].checkNeighbors(shape, vertex_list)){
-                    while (sameColors) {
-                        shape.alterRBG(color_list[0]);
-                        if(shape.color[0] != iter->second[j].color[0] || shape.color[1] != iter->second[j].color[1] || shape.color[2] != iter->second[j].color[2]){
-                            sameColors = false;
-                        }
-                    }
-                    insertHash(shape.RGBvalue, shape, try_color);
+void HashTable::insertHash(Triangle &shape, Color try_color, bool &complete) {
+    int hashvalue = hashFunction(shape.RGBvalue);
+    //list<pair<int, vector<Triangle>>> &index = table[hashvalue];
+    list<Triangle> index = table[hashvalue];
+    if(index.empty()) {
+        index.push_back(shape);
+        complete = true;
+    }
+    else{
+        auto iter = begin(index);
+        for (; iter != end(index); iter++) {
+                if (iter->checkNeighbors(shape, vertex_list)) {
+                    //for (int j = 0; j < iter->second.size(); j++) {
+                    //if (iter->second[j].checkNeighbors(shape, vertex_list)) {
+                    //break;
+                    //}
+                    //}
                     break;
                 }
             }
         }
-        else{
-            vector<Triangle> temp = {shape};
-            index.emplace_back(key, temp);
-            break;
-        }
     }
-}
 
 
-void HashTable::removeItem(int key) {
-    int hashvalue = hashFunction(key);
-    list<pair<int,vector<Triangle>>> &index = table[hashvalue];
+
+
+void HashTable::removeItem(Triangle shape) {
+    int hashvalue = hashFunction(shape.RGBvalue);
+    list<Triangle> index = table[hashvalue];
     auto iter = begin(index);
     for(; iter != end(index); iter ++){
-        if(iter->first == key){
+        if(iter->vertices == shape.vertices){
             iter = index.erase(iter);
         }
     }
@@ -89,9 +90,10 @@ void HashTable::printTable() {
             auto iter = begin(table[i]);
             for(; iter != end(table[i]); iter ++){
                 cout << "Bucket: " << i + 1 << endl;
-                cout << "Key: " << iter->first << endl;
-                for(int i = 0; i < iter->second.size(); i++) {
-                    cout << "Value(s): " << iter->second[i].RGBvalue << ' ';
+                cout << "Key: " << iter->RGBvalue << endl;
+                cout << "Value(s): ";
+                for(int i = 0; i < iter->vertices.size(); i++) {
+                    cout << iter->vertices[i] << ' ';
                 }
                 cout << endl;
             }

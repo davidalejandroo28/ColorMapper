@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include "Hashtable.h"
-#include "Graph.h"
 
 
 using namespace std;
@@ -96,28 +95,23 @@ int main() {
     //GENERATE HASHTABLE
     HashTable HTable(mesh.vertices, mesh.triangles, palette);
 
-    //Generate adjacency list
-    Graph graph;
-    graph.setNeighbors(mesh.triangles);
 
-/*
     //START COLOR ASSIGNING
     bool colorSetSuccessful;
     int pal_num;
+    cout << mesh.triangles.size() << endl;
+    cout << mesh.vertices.size() << endl;
     for(int i = 0; i < HTable.getTriangleList().size(); i++){
         colorSetSuccessful = false;
         while(!colorSetSuccessful) {
-            cout << rand()%palette.size() << endl;
             pal_num = (rand()%palette.size());
             mesh.triangles[i].alterRBG(palette[pal_num]);
             //Have the same color value for the chart
-            HTable.insertHash(mesh.triangles[i].RGBvalue, mesh.triangles[i], palette[pal_num]);
-            
-            graph.coloringShapes(mesh.triangles[i], colorSetSuccessful, palette[pal_num]); // Graph Algorithm
-            
+            HTable.insertHash(mesh.triangles[i], palette[pal_num], colorSetSuccessful);
         }
     }
-*/
+    HTable.printTable();
+
     //All triangles have colors
     cout << "done" << endl;
 }
