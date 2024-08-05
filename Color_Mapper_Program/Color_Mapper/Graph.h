@@ -9,6 +9,7 @@
 #include <utility>
 #include <random>
 #include <map>
+#include "Hashtable.h"
 //#include "Delaunay_Triangulation.h"
 using namespace std;
 
