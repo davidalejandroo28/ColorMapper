@@ -10,6 +10,8 @@
 
 #include "Runtime_Script.h"
 #include "Delaunay_Triangulation.h"
+#include "Graph.h"
+//#include "Hashtable.h"
 
 using namespace std;
 class RenderWindow: public RuntimeScript
@@ -277,9 +279,10 @@ public:
         //Get user Input
 
         //generate a random mesh to colorize
+        cout << "----Generating mesh----" << endl;
+
         mesh = GenerateRandomMesh();
 
-        //colorize mesh
         vector<double> cordinates;
 
         for (int x = 0; x < mesh.vertices.size(); x += 1)
@@ -296,14 +299,30 @@ public:
             triangle.vertices[1] = del.triangles[tri + 1];
             triangle.vertices[2] = (del.triangles[tri + 2]);
 
-            array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
-            triangle.color = randomColor;
+            //array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
+            //triangle.color = randomColor;
                 
             mesh.triangles.push_back(triangle);
         }
         
-        printMesh(mesh);
+        //printMesh(mesh);
 
+        //colorize mesh
+        cout << endl << "----Coloring graph---- " << endl;
+        Graph graph;
+        Color white(255, 255, 255);
+        graph.setNeighbors(mesh.triangles);
+        vector<Color> availableColors = { Color(255, 255, 255), Color(0, 255, 255), Color(0, 0, 255), Color(55, 0, 255), Color(24, 222, 45), Color(234, 4, 242) };
+        if (graph.colorMesh(mesh, availableColors))
+        {
+            cout << "Successful!" << endl;
+        }
+        else
+        {
+            cout << "Unsuccessful!" << endl;
+        }
+        
+        cout << endl << "----Rendering graph----" << endl;
         InitializeRender();
 	}
 

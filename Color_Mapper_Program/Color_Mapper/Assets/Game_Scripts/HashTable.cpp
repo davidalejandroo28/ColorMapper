@@ -1,34 +1,104 @@
-#pragma once
-
+#include <iostream>
+#include <map>
+#include <vector>
+#include <utility>
+#include <random>
+#include <list>
 #include <array>
-#include <cstdlib>
-#include <algorithm>
-#include <unordered_map>
 
-#define DATASIZE 1000
+#include "Hashtable.h"
 
-struct Vertex
-{
-    //X cordinate is 0, Y cordinate is 1
-    array<float, 2> cordinates;
-};
+using namespace std;
 
-struct Triangle
-{
-    array<int, 3> vertices; //<== points to each vertex index in the vertice array
-    array<int, 3> color = { 60, 60, 60 }; //color range is 0 to 255 and R G B
-    vector<Triangle*> neighbors; //For algorithm using Graph Adjacency list 
-};
+void HashTriangle::alterRBG(Color new_color){
+    color[0] = new_color.RBG[0];
+    color[1] = new_color.RBG[1];
+    color[2] = new_color.RBG[2];
+    RGBvalue = color[0] + (color[1] * 2) + (color[2] * 3);
+}
 
-struct MeshData
-{
-    array<Vertex, DATASIZE> vertices;
-    vector<Triangle> triangles;
+bool HashTriangle::checkNeighbors(HashTriangle newShape, array<Vertex,DATASIZE> vertex_location) {
+    int cnt_same_vert = 0;
+    for(int i = 0; i < sizeof(newShape.vertices); i ++){
+        for(int j = 0; j < sizeof(newShape.vertices); j++) {
+            if (vertex_location[vertices[i]].cordinates == vertex_location[newShape.vertices[j]].cordinates){
+                cnt_same_vert += 1;
+                break;
+            }
+        }
+        if(cnt_same_vert >= 2){
+            return true;
+        }
+    }
+    return false;
+}
 
-    array<float, 2> xAxisRange = { -10, 10 };
-    array<float, 2> yAxisRange = { -10, 10 };
-};
+int HashTable::hashFunction(int key) {
+    return key % 10;
+}
 
+vector<HashTriangle> HashTable::getTriangleList() {
+    return triangles;
+}
+
+//Check if neighbors, and if so change color until colors are alright
+void HashTable::insertHash(HashTriangle &shape, Color try_color, bool &complete) {
+    int hashvalue = hashFunction(shape.RGBvalue);
+    //list<pair<int, vector<Triangle>>> &index = table[hashvalue];
+    list<HashTriangle> index = table[hashvalue];
+    if(index.empty()) {
+        index.push_back(shape);
+        complete = true;
+    }
+    else{
+        auto iter = begin(index);
+        for (; iter != end(index); iter++) {
+                if (iter->checkNeighbors(shape, vertex_list)) {
+                    //for (int j = 0; j < iter->second.size(); j++) {
+                    //if (iter->second[j].checkNeighbors(shape, vertex_list)) {
+                    //break;
+                    //}
+                    //}
+                    break;
+                }
+            }
+        }
+}
+
+
+void HashTable::removeItem(HashTriangle shape) {
+    int hashvalue = hashFunction(shape.RGBvalue);
+    list<HashTriangle> index = table[hashvalue];
+    auto iter = begin(index);
+    for(; iter != end(index); iter ++){
+        if(iter->vertices == shape.vertices){
+            iter = index.erase(iter);
+        }
+    }
+}
+
+void HashTable::printTable() {
+    for(int i = 0; i < hashGroups; i ++){
+        if(table[i].size() == 0){
+            continue;
+        }
+        else{
+            auto iter = begin(table[i]);
+            for(; iter != end(table[i]); iter ++){
+                cout << "Bucket: " << i + 1 << endl;
+                cout << "Key: " << iter->RGBvalue << endl;
+                cout << "Value(s): ";
+                for(int i = 0; i < iter->vertices.size(); i++) {
+                    cout << iter->vertices[i] << ' ';
+                }
+                cout << endl;
+            }
+        }
+    }
+}
+
+/*
+//MESH
 
 int ReturnMidIndex(int lowIndex, int highIndex)
 {
@@ -43,8 +113,8 @@ int FindMedian(const array<Vertex, DATASIZE>& vertices, int lowIndex, int highIn
 
     for (int i = lowIndex; i <= highIndex; i++)
     {
-        medianArry.push_back(vertices.at(i).cordinates[axis]);
-        cordsToIndex[vertices.at(i).cordinates[axis]] = i;
+        medianArry.push_back(vertices.at(i).coordinates[axis]);
+        cordsToIndex[vertices.at(i).coordinates[axis]] = i;
     }
 
     sort(medianArry.begin(), medianArry.end());
@@ -60,7 +130,7 @@ void PutPivotCenter(MeshData& mesh, const int lowIndex, const int midIndex, cons
     mesh.vertices.at(midIndex) = mesh.vertices.at(median);
     mesh.vertices.at(median) = tempVertex;
 
-    cout << "median is: " << " Axis " << axis << " " << mesh.vertices.at(midIndex).cordinates[axis] << endl;
+    cout << "median is: " << " Axis " << axis << " " << mesh.vertices.at(midIndex).coordinates[axis] << endl;
 }
 
 //This sorts the vertex list into a 1D array kd-tree structure
@@ -91,12 +161,12 @@ void SortVertexs(MeshData& mesh, const int depth = 0, const int lowIndex = 0, co
             //all left elements are lower than the mid index
             break;
         }
-        else if (mesh.vertices.at(leftIndex).cordinates[useAxis] < mesh.vertices.at(midIndex).cordinates[useAxis])
+        else if (mesh.vertices.at(leftIndex).coordinates[useAxis] < mesh.vertices.at(midIndex).coordinates[useAxis])
         {
             //this vertex is less than the middle
             leftIndex++;
         }
-        else if (mesh.vertices.at(rightIndex).cordinates[useAxis] > mesh.vertices.at(midIndex).cordinates[useAxis])
+        else if (mesh.vertices.at(rightIndex).coordinates[useAxis] > mesh.vertices.at(midIndex).coordinates[useAxis])
         {
             //this vertex is higher than the middle
             rightIndex--;
@@ -128,8 +198,9 @@ void printMesh(MeshData& mesh)
     for (auto vertex = mesh.vertices.begin(); vertex != mesh.vertices.end(); vertex++)
     {
         cout << "Index: " << setw(3) << left << index << " ";
-        cout << "X:" << setw(5) << left << vertex->cordinates[0] <<
-            " Y:" << setw(5) << left << vertex->cordinates[1] << endl;
+        cout << "X:" << setw(5) << left << vertex->coordinates[0] <<
+             " Y:" << setw(5) << left << vertex->coordinates[1] <<
+             " Tri Index: " << vertex->triangleIndex << endl;
         index++;
     }
     cout << "-------------------------" << endl << endl;
@@ -139,7 +210,7 @@ void printMesh(MeshData& mesh)
     for (auto triangle = mesh.triangles.begin(); triangle != mesh.triangles.end(); triangle++)
     {
         cout << "Triangle: " << index <<
-            " Vertices: " << triangle->vertices[0] << " " << triangle->vertices[1] << " " << triangle->vertices[2] << endl;
+             " Vertices: " << triangle->vertices[0] << " " << triangle->vertices[1] << " " << triangle->vertices[2] << endl;
         index++;
     }
     cout << "-------------------------" << endl << endl;
@@ -158,10 +229,10 @@ void MergeMesh(MeshData& mesh, int lowVertIndex = 0, int highVertIndex = DATASIZ
         mesh.triangles.push_back(triangle);
 
         //randomize color to see different triangles
-        array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
-        /*mesh.vertices.at(lowVertIndex).color = randomColor;
-        mesh.vertices.at(lowVertIndex + 1).color = randomColor;
-        mesh.vertices.at(lowVertIndex + 2).color = randomColor;*/
+        //array<int, 3> randomColor = { ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255, ((float)rand() / RAND_MAX) * 255 };
+        //mesh.vertices.at(lowVertIndex).color = randomColor;
+        //mesh.vertices.at(lowVertIndex + 1).color = randomColor;
+        //mesh.vertices.at(lowVertIndex + 2).color = randomColor;
 
         //TODO, add triangle indexs when needed
         return;
@@ -196,17 +267,17 @@ MeshData GenerateRandomMesh()
 
         //implementation of equation x or y = (distance of allowed bounds * random Value) + (left bound)
         //Proof: https://www.desmos.com/calculator/oat3knijz3
-        vertex.cordinates[0] = ((mesh.xAxisRange[1] - mesh.xAxisRange[0]) * randomVal) + mesh.xAxisRange[0];
+        vertex.coordinates[0] = ((mesh.xAxisRange[1] - mesh.xAxisRange[0]) * randomVal) + mesh.xAxisRange[0];
 
         randomVal = (float)rand() / RAND_MAX;
-        vertex.cordinates[1] = ((mesh.yAxisRange[1] - mesh.yAxisRange[0]) * randomVal) + mesh.yAxisRange[0];
+        vertex.coordinates[1] = ((mesh.yAxisRange[1] - mesh.yAxisRange[0]) * randomVal) + mesh.yAxisRange[0];
     }
 
     //setting camera bounds
-    mesh.vertices[0].cordinates = { mesh.xAxisRange[0], mesh.yAxisRange[0] };
-    mesh.vertices[1].cordinates = { mesh.xAxisRange[0], mesh.yAxisRange[1] };
-    mesh.vertices[2].cordinates = { mesh.xAxisRange[1], mesh.yAxisRange[0] };
-    mesh.vertices[3].cordinates = { mesh.xAxisRange[1], mesh.yAxisRange[1] };
+    mesh.vertices[0].coordinates = { mesh.xAxisRange[0], mesh.yAxisRange[0] };
+    mesh.vertices[1].coordinates = { mesh.xAxisRange[0], mesh.yAxisRange[1] };
+    mesh.vertices[2].coordinates = { mesh.xAxisRange[1], mesh.yAxisRange[0] };
+    mesh.vertices[3].coordinates = { mesh.xAxisRange[1], mesh.yAxisRange[1] };
 
     //Sort the mesh
     //SortVertexs(mesh);
@@ -216,12 +287,4 @@ MeshData GenerateRandomMesh()
 
     return mesh;
 }
-
-
-
-
-
-
-
-
-
+*/
