@@ -32,6 +32,34 @@ struct MeshData
     array<float, 2> yAxisRange = { -10, 10 };
 };
 
+struct Color {
+    array<int, 3> RGB;
+    Color(int R, int G, int B) {
+        RGB[0] = R;
+        RGB[1] = G;
+        RGB[2] = B;
+    }
+
+    bool operator==(Triangle* triangle)
+    {
+        if (triangle->color == this->RGB)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool operator==(Color& color)
+    {
+        if (color.RGB == this->RGB)
+        {
+            return true;
+        }
+
+        return false;
+    }
+};
 
 int ReturnMidIndex(int lowIndex, int highIndex)
 {

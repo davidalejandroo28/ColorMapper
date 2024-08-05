@@ -11,6 +11,7 @@
 #include "Runtime_Script.h"
 #include "Delaunay_Triangulation.h"
 #include "Graph.h"
+#include "Hashtable.h"
 
 using namespace std;
 class RenderWindow: public RuntimeScript

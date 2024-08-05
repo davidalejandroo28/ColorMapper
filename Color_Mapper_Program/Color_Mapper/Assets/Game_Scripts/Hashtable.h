@@ -15,15 +15,6 @@ using namespace std;
 //Ask about not even vertices count
 //Ask about screen size
 
-struct Color{
-    array<int,3> RBG;
-    Color(int in_R, int in_G, int in_B){
-        RBG[0] = in_R;
-        RBG[1] = in_G;
-        RBG[2] = in_B;
-    }
-};
-
 struct HashTriangle: Triangle
 {
     int RGBvalue;

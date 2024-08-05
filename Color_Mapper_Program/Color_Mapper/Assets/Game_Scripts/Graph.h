@@ -16,35 +16,6 @@
 
 using namespace std;
 
-struct Color {
-    array<int, 3> RGB;
-    Color(int R, int G, int B){
-        RGB[0] = R;
-        RGB[1] = G;
-        RGB[2] = B;
-    }
-
-    bool operator==(Triangle* triangle)
-    {
-        if (triangle->color == this->RGB)
-        {
-            return true;
-        }
-
-        return false;
-    } 
-
-    bool operator==(Color& color)
-    {
-        if (color.RGB == this->RGB)
-        {
-            return true;
-        }
-
-        return false;
-    }
-};
-
 class Graph {
 public:
     void setNeighbors(vector<Triangle>& shapes) {
