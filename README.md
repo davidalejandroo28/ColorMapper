@@ -6,4 +6,4 @@ This can be used for mapping where the creator wants to distinguish each region.
 Install the nessessary libraries under the library folder: https://github.com/zorarkdouble8/Color_Mapper/tree/main/Color_Mapper_Program/Color_Mapper/Libraries 
 
 ## To run the program:
-A .exe location is to be determined
+Run the .exe file under the EXE File folder

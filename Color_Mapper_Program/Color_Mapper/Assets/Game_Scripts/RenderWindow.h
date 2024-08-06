@@ -6,8 +6,6 @@
 #include <SFML/System.hpp>
 #include <unordered_map>
 
-#include <glm/glm.hpp>
-
 #include "Runtime_Script.h"
 #include "Delaunay_Triangulation.h"
 #include "Graph.h"

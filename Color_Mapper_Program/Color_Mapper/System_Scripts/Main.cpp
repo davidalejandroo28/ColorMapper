@@ -24,8 +24,8 @@
 #include "Event.h"
 #include "System_Manager.h"
 
-#include "../../Assets/Game_Scripts/RenderWindow.h"
-#include "../../Assets/Game_Scripts/Delaunay_Triangulation.h"
+#include "../Assets/Game_Scripts/RenderWindow.h"
+#include "../Assets/Game_Scripts/Delaunay_Triangulation.h"
 
 using namespace std;
 

@@ -1,9 +1,8 @@
 Libraries that this project depends upon:
     Catch: https://github.com/catchorg/Catch2 
     glad: https://glad.dav1d.de/ (API: gl of version >= 3.3, Profile: core, Generate a loader, )
-    glm: https://github.com/g-truc/glm 
     SFML: https://www.sfml-dev.org/download/sfml/2.6.1/ (of version 2.6.1 or higher)
-    Delaunator: https://github.com/delfrrr/delaunator-cpp
+    Delaunator: https://github.com/delfrrr/delaunator-cpp/tree/master/include
 
 Visual Studio libraries:
     Visual Leak Detector: https://github.com/onbings/vld/tree/main/package (Visual studio 2022)
