@@ -372,6 +372,10 @@ MeshData* GenerateRandomMesh()
 
         return partitionData;
     }
+
+    static const int partitionStride = 12;
+    static const int partitionSize = (DATASIZE / 3) * partitionStride;
+    array<float, partitionSize> partitionData{};
     */
 
 

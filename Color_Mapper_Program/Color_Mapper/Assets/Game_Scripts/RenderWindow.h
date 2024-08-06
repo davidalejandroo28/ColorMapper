@@ -15,7 +15,23 @@
 using namespace std;
 class RenderWindow: public RuntimeScript
 {
-public:
+private:
+    //--Variables for rendering--
+    static const int stride = 5;
+    static const int verticeSize = DATASIZE * stride * 3;
+    array<float, verticeSize>* vertexs = new array<float, verticeSize>();
+
+    //--Variables for colorizing
+    MeshData* mesh;
+    Graph graph;
+    vector<Color> availableColors;
+
+    //--Variables for user input
+    bool tookUserInput = false;
+    bool colorGraph = false;
+    bool colorHashTable = false;
+    bool doRunTime = false;
+
     //This checks for any errors on the GPU and then converts the error code
     void CheckErrors()
     {
@@ -125,34 +141,23 @@ public:
                 vertexs->at(x + v * stride) = mesh->vertices.at(mesh->triangles.at(triangleIndex).vertices[v]).cordinates[0] / (float)(abs(mesh->xAxisRange[0]) + abs(mesh->xAxisRange[1])) * 2;
                 vertexs->at(x + v * stride + 1) = mesh->vertices.at(mesh->triangles.at(triangleIndex).vertices[v]).cordinates[1] / (float)(abs(mesh->yAxisRange[0]) + abs(mesh->yAxisRange[1])) * 2;
 
-     
+
                 vertexs->at(x + v * stride + 2) = (float)mesh->triangles.at(triangleIndex).color[0] / 255;
-                vertexs->at(x + v * stride + 3) = (float) mesh->triangles.at(triangleIndex).color[1] / 255;
-                vertexs->at(x + v * stride + 4) = (float) mesh->triangles.at(triangleIndex).color[2] / 255;
+                vertexs->at(x + v * stride + 3) = (float)mesh->triangles.at(triangleIndex).color[1] / 255;
+                vertexs->at(x + v * stride + 4) = (float)mesh->triangles.at(triangleIndex).color[2] / 255;
             }
-        
+
             triangleIndex++;
         }
 
         return vertexs;
     }
 
-    static const int partitionStride = 12;
-    static const int partitionSize = (DATASIZE / 3) * partitionStride;
-    array<float, partitionSize> partitionData {}; 
-
-    static const int stride = 5;
-    static const int verticeSize = DATASIZE * stride * 3;
-    array<float, verticeSize>* vertexs = new array<float, verticeSize>();
-
     void InitializeRender()
     {
         glEnable(GL_DEPTH_TEST);
 
         CreateShaders();
-
-        //DEBUG partition lines
-        //partitionData = ConvertPartitionData<float, partitionSize>(partitionStride);
 
         //Verted data
         if (vertexs != nullptr)
@@ -172,13 +177,7 @@ public:
         CreateVertexArray();
         glDrawArrays(GL_TRIANGLES, 0, DATASIZE * 6);
     }
-
-    MeshData* mesh;
-    bool colorGraph = false;
-    bool colorHashTable = false;
-    bool doRunTime = false;
-    Graph graph;
-
+public:
     vector<Color> GetUserInput()
     {
         //Get user Input (DON'T CHANGE)
@@ -283,7 +282,6 @@ public:
 
         return availableColors;
     }
-
     
 	void Start()
 	{
@@ -297,8 +295,6 @@ public:
         Render();
 	}
 
-    bool tookUserInput = false;
-    vector<Color> availableColors;
 	void Update()
 	{
         if (!tookUserInput)
@@ -309,20 +305,6 @@ public:
             availableColors = GetUserInput();
 
             tookUserInput = true;
-
-            //bool colorSetHash = false;
-            //int pal_num = 0;
-            //HashTable HTable(mesh.vertices, mesh.triangles, availableColors);
-            //for (int i = 0; i < HTable.getTriangleList().size(); i++) {
-            //    colorSetHash = false;
-            //    while (!colorSetHash) {
-            //        pal_num = (rand() % availableColors.size());
-            //        alterRGB(mesh.triangles[i], availableColors[pal_num]);
-            //        //Have the same color value for the chart
-            //        HTable.insertHash(mesh.triangles[i], availableColors[pal_num], colorSetHash);
-            //        //graph.coloringShapes(mesh.triangles[i], colorSetGraph, palette[pal_num]);
-            //    }
-            //}
 
             InitializeRender();
         }

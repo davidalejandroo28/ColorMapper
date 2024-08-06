@@ -13,50 +13,21 @@
 
 using namespace std;
 
-//Ask about not even vertices count
-//Ask about screen size
-
-//struct HashTriangle
-//{
-//    array<int, 3> vertices = {}; //<== points to each vertex index in the vertice array
-//    array<int, 3> color = { 60, 60, 60 }; //color range is 0 to 255 and R G B
-//    int RGBvalue;
-//
-//    HashTriangle(Triangle shape){
-//        color[0] = shape.color[0];
-//        color[1] = shape.color[1];
-//        color[2] = shape.color[2];
-//        RGBvalue = color[0] + (color[1] * 2) + (color[2] * 3);
-//        vertices = shape.vertices;
-//    }
-//
-//    bool isNeighbor(const Triangle& shape);
-//};
-
 class HashTable{
 private:
     //buckets
     int hashGroups = 13;
     vector<list<Triangle*>> table;
-    array<Vertex,DATASIZE> vertex_list;
-    vector<Triangle> triangles;
     vector<Color> color_list;
 
-public:
-    HashTable(array<Vertex,DATASIZE>& new_list,vector<Triangle>& new_triangles,vector<Color> colors){
-        table.resize(13);
-        vertex_list = new_list;
-        triangles = new_triangles;
-        color_list = colors;
-
-
-    };
-    vector<Triangle> getTriangleList();
-    array<Vertex,DATASIZE> getVertexList();
     int hashFunction(array<int, 3> color);
+public:
+    HashTable(vector<Color> colors){
+        table.resize(13);
+        color_list = colors;
+    };
+
     void insertHash(Triangle* shape, Color in_color, bool &complete);
-    //void removeItem(HashTriangle key);
-    //void printTable();
 };
 
 void alterRGB(Triangle &new_t,Color new_color){
@@ -159,14 +130,6 @@ int HashTable::hashFunction(array<int, 3> color) {
                 }}}}
 }
 
-vector<Triangle> HashTable::getTriangleList() {
-    return triangles;
-}
-
-array<Vertex,DATASIZE> HashTable::getVertexList(){
-    return vertex_list;
-}
-
 //Check if neighbors, and if so change color until colors are alright
 void HashTable::insertHash(Triangle* shape, Color try_color, bool& complete) {
     int hashvalue = hashFunction(shape->color);
@@ -193,43 +156,11 @@ void HashTable::insertHash(Triangle* shape, Color try_color, bool& complete) {
     }
 }
 
-////Remove
-//void HashTable::removeItem(HashTriangle shape) {
-//    int hashvalue = hashFunction(shape.RGBvalue);
-//    list<HashTriangle> index = table[hashvalue];
-//    auto iter = begin(index);
-//    for(; iter != end(index); iter ++){
-//        if(iter->vertices == shape.vertices){
-//            iter = index.erase(iter);
-//        }
-//    }
-//}
-
-//void HashTable::printTable() {
-//    for(int i = 0; i < hashGroups; i ++){
-//        if(table[i].size() == 0){
-//            continue;
-//        }
-//        else{
-//            auto iter = begin(table[i]);
-//            for(; iter != end(table[i]); iter ++){
-//                cout << "Bucket: " << i + 1 << endl;
-//                cout << "Key: " << iter->RGBvalue << endl;
-//                cout << "Value(s): ";
-//                for(int i = 0; i < iter->vertices.size(); i++) {
-//                    cout << iter->vertices[i] << ' ';
-//                }
-//                cout << endl;
-//            }
-//        }
-//    }
-//}
-
 HashTable* HTable = nullptr;
 int triIndex = 0;
 void ColorTriangle(MeshData& mesh, vector<Color> availableColors)
 {
-    if (triIndex >= HTable->getTriangleList().size())
+    if (triIndex >= mesh.triangles.size())
     {
         return;
     }
@@ -251,11 +182,11 @@ bool ColorizeHTable(MeshData &mesh, vector<Color> availableColors, bool doInRunT
     }
 
     if (HTable == nullptr)
-        HTable = new HashTable(mesh.vertices, mesh.triangles, availableColors);
+        HTable = new HashTable(availableColors);
 
     if (doInRunTime == false)
     {
-        for (int tri = 0; tri <= HTable->getTriangleList().size(); tri++)
+        for (int tri = 0; tri <= mesh.triangles.size(); tri++)
         {
             ColorTriangle(mesh, availableColors);
             triIndex++;
