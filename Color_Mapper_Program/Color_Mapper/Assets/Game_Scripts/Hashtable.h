@@ -82,11 +82,11 @@ int HashTable::hashFunction(array<int, 3> color) {
         //Red,Blue,Indigo,Orange
         if(key < 600){
             //Red
-            if((key/255) == 1){
+            if(key == 255){
                 return 0;
             }
             //Blue
-            else if((key/255) == 2){
+            else if(key == 510){
                 return 1;
             }
             else{
