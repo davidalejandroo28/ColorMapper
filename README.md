@@ -7,3 +7,7 @@ Install the nessessary libraries under the library folder: https://github.com/zo
 
 ## To run the program:
 Run the .exe file under the EXE File folder
+
+
+### Other Info
+This project is a fork of the SFML-and-OpenGL-Playground and can be found here: https://github.com/zorarkdouble8/SFML-and-OpenGl-Playground
