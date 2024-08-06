@@ -8,7 +8,7 @@
 
 #include "../../Libraries/delaunator.hpp"
 
-#define DATASIZE 5000
+#define DATASIZE 3000
 
 struct Vertex
 {

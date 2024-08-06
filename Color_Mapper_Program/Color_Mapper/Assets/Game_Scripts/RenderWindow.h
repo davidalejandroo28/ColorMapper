@@ -178,6 +178,7 @@ public:
     MeshData* mesh;
     bool colorGraph = false;
     bool colorHashTable = false;
+    bool doRunTime = false;
     Graph graph;
 
     vector<Color> GetUserInput()
@@ -186,21 +187,21 @@ public:
         unordered_map<string, Color> options = { {"Red", Color(255, 0, 0)}, {"Blue", Color(0, 255, 0)}, {"Green", Color(0, 0, 255)},  
             {"Yellow", Color(255, 251, 0)}, {"Cyan", Color(0, 234, 255)}, {"Magenta", Color(248, 0, 255)}, {"Orange", Color(255, 127, 0)},
             {"BabyBlue", Color(137, 207, 240)}, {"Indigo", Color(75, 0, 130)}, {"Violet", Color(148, 0, 211)}, 
-            {"Pink", Color(128, 255, 0)}, {"Rose", Color(235, 52, 100)}, {"Sand", Color(173, 145, 66)} };
-        //(255, 192, 203) <== pink!
+            {"Lime", Color(128, 255, 0)}, {"Rose", Color(235, 52, 100)}, {"Sand", Color(173, 145, 66)} };
+
         vector<Color> availableColors;
 
 
         cout << "Project 3: Mapping with Colors" << endl;
-        cout << "Menu Options:" << endl;
-        cout << "What colors do you want?" << endl;
+      
+        cout << endl << "What colors do you want?" << endl;
         cout << "Options are: (say DONE to move onto the next step)" << endl;
         for (auto names = options.begin(); names != options.end(); names++)
         {
             cout << names->first << ", " << flush;
         }
 
-        cout << endl << "Now input your color: " << endl;
+        cout << endl << "Now input your color(s): " << endl;
 
         //TODO add error handling
         while (true)
@@ -244,7 +245,6 @@ public:
                 {
                     colorHashTable = true;
                     cout << "This might take 10 mins" << endl;
-                    ColorizeHTable(*mesh, availableColors);
                     break;
                 }
             }
@@ -264,11 +264,15 @@ public:
 
                 if (input == "Yes")
                 {
+                    doRunTime = true;
                     graph.enableRealTime();
                     break;
                 }
                 else if (input == "No")
                 {
+                    if (colorHashTable)
+                        ColorizeHTable(*mesh, availableColors);
+                    doRunTime = false;
                     graph.disableRealTime();
                     break;
                 }
@@ -302,9 +306,9 @@ public:
         if (!tookUserInput)
         {
             //colorize mesh
-            availableColors = GetUserInput();
-
             cout << endl << "----Coloring graph---- " << endl;
+
+            availableColors = GetUserInput();
 
             tookUserInput = true;
 
@@ -334,15 +338,18 @@ public:
             }
             else
             {
+                //Do algorithm in real time!
                 graph.colorMesh(*mesh, availableColors);
             }
            
             InitializeRender();
         }
 
-        if (colorHashTable)
+        if (colorHashTable && doRunTime)
         {
-            //Color the hash table
+            //Color the hash table and Do algorithm in real time!
+            ColorizeHTable(*mesh, availableColors, true);
+            InitializeRender();
         }
 
         Render();
