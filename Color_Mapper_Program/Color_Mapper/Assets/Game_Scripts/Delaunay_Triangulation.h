@@ -8,7 +8,7 @@
 
 #include "../../Libraries/delaunator.hpp"
 
-#define DATASIZE 6500
+#define DATASIZE 3000
 struct Vertex
 {
     //X cordinate is 0, Y cordinate is 1
