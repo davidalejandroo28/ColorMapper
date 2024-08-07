@@ -8,8 +8,7 @@
 
 #include "../../Libraries/delaunator.hpp"
 
-#define DATASIZE 3000 // The algorithm is capable of proccessing a datasize of 100,000, but is 3000 on the executable so it is faster on the TAs end.
-
+#define DATASIZE 3000
 struct Vertex
 {
     //X cordinate is 0, Y cordinate is 1
