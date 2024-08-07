@@ -8,7 +8,7 @@
 
 #include "../../Libraries/delaunator.hpp"
 
-#define DATASIZE 3000
+#define DATASIZE 3000 //data size of 100,000 is capable of being processed however it is 3000 for the TAs to proccess it faster
 
 struct Vertex
 {
